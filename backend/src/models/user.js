@@ -24,14 +24,14 @@ const userSchema = new mongoose.Schema({
     },
     role:{ 
         type: String,
-        enum: ['employee', 'admin', 'manager'] ,
+        enum: ['employee', 'admin', 'manager','superadmin'] ,
         required:true,
         },
     department: {
             type: String,
             enum: ['HR', 'Finance', 'IT', 'Facilities'],
             required: function() { 
-                return this.role === 'admin' || this.role === 'manager';
+                return ['admin', 'manager', 'superadmin'].includes(this.role);
             },
             validate: {
                 validator: function(value) {

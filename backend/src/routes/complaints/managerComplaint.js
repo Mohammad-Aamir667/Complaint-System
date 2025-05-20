@@ -18,6 +18,9 @@ managerComplaintRouter.put("/complaints/:complaintId/accept",userAuth,isManager,
             if(complaint.status === "resolved" || complaint.status === "in progress"){
                 return res.status(400).json({message:`Complaint is already ${complaint.status} `});
             }         
+            const age = Date.now() - new Date(complaint.createdAt).getTime();
+            const isHighPriorityAndUnresolved = (complaint.priority === 'high' && complaint.status !== 'resolved');
+            const isOlderThan24h = age >= 24 * 60 * 60 * 1000;
             complaint.status = "in progress";
             const audit = new AuditLog({
                 complaintId: complaint._id,
@@ -29,12 +32,9 @@ managerComplaintRouter.put("/complaints/:complaintId/accept",userAuth,isManager,
             });
             await audit.save();
             await complaint.save();
-            if(complaint.priority === 'high' && complaint.status !== 'resolved'){
-                const age = Date.now() - new Date(complaint.createdAt).getTime();
-                   if(age >= 24 * 60 * 60 * 1000){
-                      await createNotification(complaint.assignedAdmin, `High Priority Complaint Unresolved: ${complaint.title}`);
-                   }
-           }
+            if (isHighPriorityAndUnresolved && isOlderThan24h) {
+                await createNotification(complaint.assignedAdmin, `High Priority Complaint Unresolved for over 24h: ${complaint.title}`);
+            }
             createNotification(complaint.createdBy,`Complaint ${complaint.title} in progess`);
             res.status(200).json({message:"Complaint accepted successfully",complaint});
 

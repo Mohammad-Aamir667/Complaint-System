@@ -40,12 +40,7 @@ adminComplaintRouter.put("/complaints/:complaintId/assign-manager",userAuth,isAd
             newManager: leastBusyManager._id,
     }); 
     await audit.save();
-     if(complaint.priority === 'high' && complaint.status !== 'resolved'){
-          const age = Date.now() - new Date(complaint.createdAt).getTime();
-             if(age >= 24 * 60 * 60 * 1000){
-                await createNotification(complaint.assignedAdmin, `High Priority Complaint Unresolved: ${complaint.title}`);
-             }
-     }
+  
 
     await createNotification(leastBusyManager._id, `New complaint assigned: ${complaint.title}`);
     res.status(200).json({ message: "Complaint automatically assigned to manager", complaint });
@@ -81,12 +76,7 @@ adminComplaintRouter.put("/complaints/:complaintId/assign-manager-manual",userAu
     newManager: leastBusyManager._id,
 }); 
 await audit.save();
-  if(complaint.priority === 'high' && complaint.status !== 'resolved'){
-     const age = Date.now() - new Date(complaint.createdAt).getTime();
-        if(age >= 24 * 60 * 60 * 1000){
-           await createNotification(complaint.assignedAdmin, `High Priority Complaint Unresolved: ${complaint.title}`);
-        }
-}
+
   createNotification(managerId, `New complaint assigned: ${complaint.title}`);
   res.status(200).json({ message: "Complaint manually assigned to manager", complaint });
 } 

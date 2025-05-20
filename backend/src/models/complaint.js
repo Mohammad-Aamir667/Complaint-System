@@ -23,6 +23,11 @@ const complaintSchema = new mongoose.Schema({
         uploadedAt: { type: Date, default: Date.now }
     }],
     resolutionNotes: {type:String,maxLength:500},
+    escalated: {
+        type: Boolean,
+        default: false
+    },
+    
     assignedAdmin: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },  
     assignedManager: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },  
     createdAt: { type: Date, default: Date.now },

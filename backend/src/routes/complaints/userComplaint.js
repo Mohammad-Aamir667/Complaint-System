@@ -9,7 +9,6 @@ const { calculatePriorityNLP } = require("../../utils/priorityCalculatorNLP");
 userComplaintRouter.post("/complaints",userAuth,async (req,res)=>{
     try{ 
         const user = req.user;
-        console.log(user)
         const {title,description,category} = req.body;
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -53,7 +52,7 @@ userComplaintRouter.post("/complaints",userAuth,async (req,res)=>{
             }
         }
         const UpdatedPriority = calculatePriorityNLP(description);
-     
+       
         const complaint = new Complaint({
             title,      
             description,
@@ -70,6 +69,10 @@ userComplaintRouter.post("/complaints",userAuth,async (req,res)=>{
             reason: 'Complaint filed by user',
         });
         await audit.save();
+        if(UpdatedPriority === 'critical'){
+            const superAdmin = await User.findOne({ role: 'superAdmin', department: category });
+                await createNotification(superAdmin._id, `Critical Complaint Filed: ${title}`);
+        }
         createNotification(leastBusyAdmin._id, `New complaint filed: ${title}`);
         res.json(complaint);
     }    
