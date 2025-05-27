@@ -1,6 +1,5 @@
 const Complaint = require("../models/complaint");
 const User = require("../models/user");
-
 const escalateHighPriorityComplaints = async () => {
     const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const complaints = await Complaint.find({
@@ -19,5 +18,4 @@ const escalateHighPriorityComplaints = async () => {
         complaint.escalated = true;
         await complaint.save();
     }}
-    
 module.exports = escalateHighPriorityComplaints;

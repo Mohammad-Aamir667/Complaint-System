@@ -1,4 +1,5 @@
 const express = require("express");
+const moment = require("moment");
 const userComplaintRouter = express.Router();
 const Complaint = require("../../models/complaint");
 const User = require("../../models/user");
@@ -6,11 +7,14 @@ const AuditLog = require("../../models/auditLog");
 const createNotification = require("../../utils/createNotification");
 const { userAuth } = require("../../middlewares/auth");
 const { calculatePriorityNLP } = require("../../utils/priorityCalculatorNLP");
-userComplaintRouter.post("/complaints",userAuth,async (req,res)=>{
+userComplaintRouter.post("/complaint/lodge",userAuth,async (req,res)=>{
     try{ 
         const user = req.user;
         const {title,description,category} = req.body;
-        const today = new Date();
+        if(category !== 'HR' && category !== 'Finance' && category !== 'IT' && category !== 'Facilities' && category !== 'General') {
+            return res.status(400).json({ message: "Invalid category. Please select a valid category." });
+        }
+                const today = new Date();
         today.setHours(0, 0, 0, 0);
         const complaintCount = await Complaint.countDocuments({
             createdBy: user._id,
@@ -51,6 +55,15 @@ userComplaintRouter.post("/complaints",userAuth,async (req,res)=>{
                 leastBusyAdmin = admin;
             }
         }
+        const todayTime = moment().format("YYYYMMDD");
+        const count = await Complaint.countDocuments({
+          createdAt: {
+            $gte: moment().startOf("day"),
+            $lte: moment().endOf("day"),
+          },
+        });
+    
+        const complaintId = `CMP-${todayTime}-${String(count + 1).padStart(4, "0")}`;
         const UpdatedPriority = calculatePriorityNLP(description);
        
         const complaint = new Complaint({
@@ -59,7 +72,8 @@ userComplaintRouter.post("/complaints",userAuth,async (req,res)=>{
             category,
             priority:UpdatedPriority,
             createdBy:user._id,
-            assignedAdmin: leastBusyAdmin._id
+            assignedAdmin: leastBusyAdmin._id,
+            complaintId: complaintId,
         });
         await complaint.save();
         const audit = new AuditLog({
@@ -81,4 +95,14 @@ userComplaintRouter.post("/complaints",userAuth,async (req,res)=>{
     }   
 }       
 );
+userComplaintRouter.get("/user/complaints",userAuth,async (req,res)=>{
+    try{ 
+        const user = req.user;
+        const complaints = await Complaint.find({createdBy:user._id}).populate("assignedAdmin","name email").sort({createdAt:-1});
+        res.json(complaints);
+    }
+    catch(err){
+        res.status(500).send("some error " + err);
+    }
+});
 module.exports = userComplaintRouter;

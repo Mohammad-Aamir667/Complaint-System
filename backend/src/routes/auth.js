@@ -70,7 +70,7 @@ authRouter.post("/login",async (req,res)=>{
     }
    }
     catch(err){
-       res.status(401).send("Error "+ err.message);
+       res.status(500).send("Error "+ err.message);
     }
 })
 authRouter.post("/logout",async (req,res)=>{

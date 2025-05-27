@@ -9,6 +9,7 @@ adminComplaintRouter.put("/complaints/:complaintId/assign-manager",userAuth,isAd
     try{
      const user = req.user;
      const { complaintId } = req.params;
+     const {critical} = req.body;
      const complaint = await Complaint.findById(complaintId);
      if (!complaint) {
          return res.status(404).json({ message: "Complaint not found" });
@@ -40,7 +41,23 @@ adminComplaintRouter.put("/complaints/:complaintId/assign-manager",userAuth,isAd
             newManager: leastBusyManager._id,
     }); 
     await audit.save();
-  
+    if (critical === true) {
+        complaint.critical = true;
+        const superAdmin = await User.findOne({ role: 'superAdmin', department: complaint.category });
+        if (superAdmin) {
+            await createNotification(superAdmin._id, `Critical Complaint Assigned: ${complaint.title}`);
+           
+        }
+        const audit = new AuditLog({
+            complaintId: complaint._id,
+            action: "Marked as critical",
+            changedBy: user._id,
+            reason: "Marked as critical during complaint assignment",
+            newManager: leastBusyManager._id,
+        });
+        await audit.save();
+    }
+    
 
     await createNotification(leastBusyManager._id, `New complaint assigned: ${complaint.title}`);
     res.status(200).json({ message: "Complaint automatically assigned to manager", complaint });
@@ -54,7 +71,7 @@ adminComplaintRouter.put("/complaints/:complaintId/assign-manager-manual",userAu
  try{
   const user = req.user;
   const { complaintId } = req.params;
-  const { managerId } = req.body;
+  const { managerId,critical } = req.body;
   const complaint = await Complaint.findById(complaintId);
   if (!complaint) {
       return res.status(404).json({ message: "Complaint not found" });
@@ -76,7 +93,21 @@ adminComplaintRouter.put("/complaints/:complaintId/assign-manager-manual",userAu
     newManager: leastBusyManager._id,
 }); 
 await audit.save();
-
+if (critical === true) {
+    complaint.critical = true;
+    const superAdmin = await User.findOne({ role: 'superAdmin', department: complaint.category });
+    if (superAdmin) {
+        await createNotification(superAdmin._id, `Critical Complaint Assigned: ${complaint.title}`);
+    }
+    const audit = new AuditLog({
+        complaintId: complaint._id,
+        action: "Marked as critical",
+        changedBy: user._id,
+        reason: "Marked as critical during complaint assignment",
+        newManager: leastBusyManager._id,
+    });
+    await audit.save();
+}
   createNotification(managerId, `New complaint assigned: ${complaint.title}`);
   res.status(200).json({ message: "Complaint manually assigned to manager", complaint });
 } 

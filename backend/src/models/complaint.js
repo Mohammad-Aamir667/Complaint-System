@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const complaintSchema = new mongoose.Schema({
+
     title: { type: String, required: true ,maxLength:50},
     description: { type: String, required: true ,maxLength:500},
     category: { type: String, enum: ['HR', 'Finance', 'IT', 'Facilities', 'General'], required: true },
@@ -12,9 +13,15 @@ const complaintSchema = new mongoose.Schema({
             validator:function(value){
                 return !value || this.role === "admin";  
             },
+
             message: "Only admins can mark a complaint as critical",
         }
     },
+    complaintId: {
+        type: String,
+        unique: true,
+        required: true
+      },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     attachments: [{
         fileName: String,
@@ -37,5 +44,4 @@ complaintSchema.pre('save', function(next) {
     this.updatedAt = Date.now();
     next();
 });
-
 module.exports = mongoose.model("Complaint", complaintSchema); 
