@@ -10,9 +10,11 @@ const userCompliants = createSlice({
           addNewComplaint: (state, action) => {
             state.push(action.payload);
           },
-          
+          removeUserComplaint:(state,action)=>{
+            return null;
+        }
 
     }
 })
-export const { addUserComplaint, addNewComplaint} = userCompliants.actions;
+export const { addUserComplaint, addNewComplaint,removeUserComplaint} = userCompliants.actions;
 export default userCompliants.reducer;

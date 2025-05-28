@@ -5,138 +5,40 @@ import { BarChart3,Bell, FileText, Home, MessageSquare, Plus, Search, TrendingUp
 import { useDispatch, useSelector } from "react-redux"
 import axios from "axios"
 import { BASE_URL } from "../../utils/constants"
-import { addUserComplaint } from "../../utils/userComplaintsSlice"
+import { addUserComplaint, removeUserComplaint } from "../../utils/userComplaintsSlice"
 import { Link, useNavigate } from "react-router-dom"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
-
-
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Progress } from "@/components/ui/progress"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { removeUser } from "@/utils/userSlice"
 
 const menuItems = [
-  { title: "Dashboard", nagivate:"/employee/dashboard", icon: Home, isActive: true },
-  { title: "Profile",nagivate:"/profile", icon: User },
+  { title: "Dashboard", navigate:"/employee/dashboard", icon: Home, isActive: true },
+  { title: "Profile",navigate:"/profile", icon: User },
   { title: "Lodge Complaint",navigate:"/employee/lodge-complaint", icon: Plus },
   { title: "Status of Complaints",navigate:"#", icon: FileText },
   { title: "Statistics", navigate:"#",icon: BarChart3 },
 ]
 
-const Avatar = ({ children, className = "", size = "md" }) => {
-  const sizeClasses = {
-    sm: "w-8 h-8 text-sm",
-    md: "w-10 h-10 text-base",
-    lg: "w-16 h-16 text-lg",
+const Sidebar = ({ isOpen, onClose }) => {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const handleLogout = async () => {
+    try {
+      await axios.post(BASE_URL + "/logout", {}, { withCredentials: true })
+      dispatch(removeUser())
+      dispatch(removeUserComplaint())
+      navigate("/login")
+    } catch (err) {
+     console.error("Logout error:", err)
+    }
   }
-
-  return (
-    <div
-      className={`${sizeClasses[size]} bg-blue-500 text-white rounded-full flex items-center justify-center font-semibold ${className}`}
-    >
-      {children}
-    </div>
-  )
-}
-
-const Badge = ({ children, variant = "default", className = "" }) => {
-  const variants = {
-    default: "bg-gray-100 text-gray-800",
-    secondary: "bg-blue-100 text-blue-800",
-    success: "bg-green-100 text-green-800",
-    warning: "bg-yellow-100 text-yellow-800",
-    danger: "bg-red-100 text-red-800",
-  }
-
-  return (
-    <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${variants[variant]} ${className}`}
-    >
-      {children}
-    </span>
-  )
-}
-
-const Card = ({ children, className = "" }) => (
-  <div className={`bg-white rounded-lg border border-gray-200 shadow-sm ${className}`}>{children}</div>
-)
-
-const CardHeader = ({ children, className = "" }) => (
-  <div className={`px-6 py-4 border-b border-gray-200 ${className}`}>{children}</div>
-)
-
-const CardContent = ({ children, className = "" }) => <div className={`px-6 py-4 ${className}`}>{children}</div>
-
-const CardTitle = ({ children, className = "" }) => (
-  <h3 className={`text-lg font-semibold text-gray-900 ${className}`}>{children}</h3>
-)
-
-const CardDescription = ({ children, className = "" }) => (
-  <p className={`text-sm text-gray-600 mt-1 ${className}`}>{children}</p>
-)
-
-const Button = ({ children, variant = "primary", size = "md", className = "", onClick, ...props }) => {
-  const variants = {
-    primary: "bg-blue-600 hover:bg-blue-700 text-white",
-    secondary: "bg-gray-100 hover:bg-gray-200 text-gray-900",
-    outline: "border border-gray-300 hover:bg-gray-50 text-gray-700",
-    ghost: "hover:bg-gray-100 text-gray-700",
-  }
-
-  const sizes = {
-    sm: "px-3 py-1.5 text-sm",
-    md: "px-4 py-2 text-sm",
-    lg: "px-6 py-3 text-base",
-    icon: "p-2",
-  }
-
-  return (
-    <button
-      className={`inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ${variants[variant]} ${sizes[size]} ${className}`}
-      onClick={onClick}
-      {...props}
-    >
-      {children}
-    </button>
-  )
-}
-
-const Input = ({ className = "", ...props }) => (
-  <input
-    className={`flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
-    {...props}
-  />
-)
-
-const Progress = ({ value = 0, className = "" }) => (
-  <div className={`w-full bg-gray-200 rounded-full h-2 ${className}`}>
-    <div
-      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-      style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
-    />
-  </div>
-)
-
-const Table = ({ children, className = "" }) => (
-  <div className="overflow-x-auto">
-    <table className={`min-w-full divide-y divide-gray-200 ${className}`}>{children}</table>
-  </div>
-)
-
-const TableHeader = ({ children }) => <thead className="bg-gray-50">{children}</thead>
-
-const TableBody = ({ children }) => <tbody className="bg-white divide-y divide-gray-200">{children}</tbody>
-
-const TableRow = ({ children, className = "" }) => <tr className={`hover:bg-gray-50 ${className}`}>{children}</tr>
-
-const TableHead = ({ children, className = "" }) => (
-  <th className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${className}`}>
-    {children}
-  </th>
-)
-
-const TableCell = ({ children, className = "" }) => (
-  <td className={`px-6 py-4 whitespace-nowrap text-sm text-gray-900 ${className}`}>{children}</td>
-)
-
-const Sidebar = ({ isOpen, onClose }) => (
-  <>
+    return( <>
     {/* Mobile overlay */}
     {isOpen && <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={onClose} />}
 
@@ -169,8 +71,7 @@ const Sidebar = ({ isOpen, onClose }) => (
             
            <Link
                 key={item.title}
-               
-                to={`${item.navigate}`}
+                to={`${item?.navigate}`}
                 className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   item.isActive ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
                 }`}
@@ -193,18 +94,20 @@ const Sidebar = ({ isOpen, onClose }) => (
             <Settings className="h-4 w-4" />
             Settings
           </a>
-          <a
-            href="#"
-            className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
-          >
-            <LogOut className="h-4 w-4" />
-            Logout
-          </a>
+          <button
+  onClick={handleLogout}
+  className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
+>
+  <LogOut className="h-4 w-4" />
+  Logout
+</button>
+
         </nav>
       </div>
     </div>
   </>
-)
+    )
+}
 
 const getStatusIcon = (status) => {
   switch (status) {
@@ -251,8 +154,8 @@ const EmployeeDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const dispatch = useDispatch();
   const userComplaints = useSelector((store) => store.userComplaints);
-   const user = useSelector((store) => store.user);
-   const navigate = useNavigate();
+   const user = useSelector((store) => store?.user);
+    const navigate = useNavigate();
    const formattedDate = (createdAt)=>{
     const date = new Date(createdAt);
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -269,19 +172,24 @@ const EmployeeDashboard = () => {
                 console.error("Error fetching complaints:", err);
              }
   }
-  //const totalComplaints
   const handleLodgeComplaint = () => {
     navigate("/employee/lodge-complaint");
      }
+     const handleProfile = () => {
+    navigate("/profile");
+     }
+     
+   
   useEffect(()=>{
+    if(userComplaints?.length > 0) return; // Avoid fetching if already loaded
     getUserComplaints();
   },[])
   const totalComplaints = userComplaints?.length;
-  const resolvedComplaints = userComplaints.filter((c) => c.status === "resolved").length
-  const pendingComplaints = userComplaints.filter((c) => c.status !== "resolved").length
+  const resolvedComplaints = userComplaints?.filter((c) => c.status === "resolved")?.length
+  const pendingComplaints = userComplaints?.filter((c) => c.status !== "resolved").length
   const resolutionRate = Math.round((resolvedComplaints / totalComplaints) * 100)
 
-  return (
+  return user && (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
@@ -304,9 +212,13 @@ const EmployeeDashboard = () => {
               <Button variant="outline" size="icon">
                 <Bell className="h-4 w-4" />
               </Button>
-              <Avatar size="sm">
-                {user?.firstName?.[0]}
-                {user?.lastName?.[0]}
+              <Avatar onClick = {handleProfile} className="h-8 w-8">
+              <AvatarImage  src={user?.photoUrl || "/placeholder.svg"}
+                alt={`${user?.firstName} ${user?.lastName}`} />
+                 <AvatarFallback>
+                  {user?.firstName?.[0]}
+                  {user?.lastName?.[0]}
+                </AvatarFallback>
               </Avatar>
             </div>
           </div>
@@ -393,16 +305,20 @@ const EmployeeDashboard = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex items-center space-x-4">
-                    <Avatar size="lg">
-                      {user?.firstName?.[0]}
-                      {user?.lastName?.[0]}
-                    </Avatar>
+                  <Avatar className="h-8 w-8">
+                <AvatarImage  src={user?.photoUrl || "/placeholder.svg"}
+                alt={`${user?.firstName} ${user?.lastName}`} />
+                <AvatarFallback>
+                  {user?.firstName?.[0]}
+                  {user?.lastName?.[0]}
+                </AvatarFallback>
+              </Avatar>
                     <div className="space-y-1">
                       <h3 className="font-semibold text-lg">
                         {user?.firstName} {user?.lastName}
                       </h3>
                       <p className="text-sm text-gray-600">{user?.role}</p>
-                      <Badge variant="secondary">{user?.status}</Badge>
+                      {/* <Badge variant="secondary">{user?.status}</Badge> */}
                     </div>
                   </div>
                   <div className="grid gap-3 text-sm">
@@ -410,10 +326,9 @@ const EmployeeDashboard = () => {
                       <span className="text-gray-600">Email:</span>
                       <span className="font-medium">{user?.emailId}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Department:</span>
-                      <span className="font-medium">{user?.department}</span>
-                    </div>
+                   {user?.department &&  (<div className="flex justify-between">
+                    <span className="text-gray-600">Department:</span>
+<span className="font-medium">{user?.department}</span>  </div>)}
                     <div className="flex justify-between">
                       <span className="text-gray-600">Joining Date:</span>
                       <span className="font-medium">{user?.joiningDate}</span>
@@ -433,7 +348,7 @@ const EmployeeDashboard = () => {
                 <div className="space-y-4">
                   {userComplaints?.slice(0, 3).map((complaint) => (
                     <div
-                      key={complaint.id}
+                      key={complaint._id}
                       className="flex items-center space-x-4 p-3 border border-gray-200 rounded-lg"
                     >
                       <div className="flex-shrink-0">{getStatusIcon(complaint.status)}</div>
@@ -468,8 +383,8 @@ const EmployeeDashboard = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {userComplaints.map((complaint) => (
-                    <TableRow key={complaint.id}>
+                  {userComplaints?.map((complaint) => (
+                    <TableRow key={complaint._id}>
                       <TableCell className="font-medium">{complaint?.complaintId}</TableCell>
                       <TableCell>{complaint.title}</TableCell>
                       <TableCell>{complaint.category}</TableCell>

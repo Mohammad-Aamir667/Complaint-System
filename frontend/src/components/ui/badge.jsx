@@ -17,6 +17,12 @@ const badgeVariants = cva(
           "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
           "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+
+        // ✅ Added custom status variants:
+        success:
+          "border-transparent bg-green-500 text-white [a&]:hover:bg-green-600",
+        warning:
+          "border-transparent bg-yellow-400 text-black [a&]:hover:bg-yellow-500",
       },
     },
     defaultVariants: {
@@ -24,6 +30,7 @@ const badgeVariants = cva(
     },
   }
 )
+
 
 function Badge({
   className,
