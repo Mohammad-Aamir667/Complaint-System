@@ -10,15 +10,17 @@ const { userAuth } = require("../middlewares/auth");
 authRouter.post("/signup", async (req, res)=>{
     try {
        validateSignUpData(req); 
-       console.log("rew",req.body);
        const {firstName,lastName,emailId,password,role,department} = req.body;
        const existingUser = await User.findOne({ emailId });
        if (existingUser) {
          return res.status(400).json({ message: "Email is already registered" });
        }
-       if(role === "employee" && department){
-         return res.status(400).json({ message: "Employee cannot have a department" });
-       }
+         if (!["employee", "admin", "manager", "superadmin"].includes(role)) {
+             return res.status(400).json({ message: "Invalid role. Please select a valid role." });
+          }
+          if (role === "employee" && !["HR", "IT", "Finance"].includes(department)) {
+             return res.status(400).json({ message: "Invalid department for employee role. Please select HR, IT, or Finance." });
+          }
        const passwordHash = await bcrypt.hash(password,10);
        const user = new User({
            firstName,
@@ -52,8 +54,35 @@ authRouter.post("/login",async (req,res)=>{
      if(!user){
       return res.status(401).send("Invalid credentials");
      }
-    const isPasswordValid = await user.validatePassword(password)
-    if(isPasswordValid){
+    const isPasswordValid = await user.validatePassword(password);
+    if(!isPasswordValid){
+       return res.status(401).send("Invalid credentials");
+    }
+    if (user.status !== "active") {
+      let message = "Your account is not active.";
+      
+      switch (user.status) {
+        case "pending":
+          message = "Your account is pending approval. Please wait or contact admin.";
+          break;
+        case "inactive":
+          message = "Your account is inactive. Please contact the administrator.";
+          break;
+        case "suspended":
+          message = "Your account has been suspended. Contact support for more info.";
+          break;
+        case "terminated":
+          message = "Your account has been terminated. Access is no longer available.";
+          break;
+      }
+    
+      return res.status(403).json({
+        success: false,
+        message,
+      });
+    }
+    
+    
        const token = await user.getJWT();
        const userData = user.toObject();
            delete userData.password;
@@ -62,12 +91,11 @@ authRouter.post("/login",async (req,res)=>{
              secure: true,  // ✅ Required for HTTPS (Render & Vercel)
              sameSite: "none",  // ✅ Allow cross-origin cookies
            });
+
        res.cookie("token",token);
        res.json(userData);
-    }
-    else{
-       throw new Error("Incorrect password");
-    }
+    
+   
    }
     catch(err){
        res.status(500).send("Error "+ err.message);

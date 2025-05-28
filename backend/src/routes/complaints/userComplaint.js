@@ -14,7 +14,7 @@ userComplaintRouter.post("/complaint/lodge",userAuth,async (req,res)=>{
         if(category !== 'HR' && category !== 'Finance' && category !== 'IT' && category !== 'Facilities' && category !== 'General') {
             return res.status(400).json({ message: "Invalid category. Please select a valid category." });
         }
-                const today = new Date();
+        const today = new Date();
         today.setHours(0, 0, 0, 0);
         const complaintCount = await Complaint.countDocuments({
             createdBy: user._id,
@@ -105,4 +105,5 @@ userComplaintRouter.get("/user/complaints",userAuth,async (req,res)=>{
         res.status(500).send("some error " + err);
     }
 });
+
 module.exports = userComplaintRouter;

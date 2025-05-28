@@ -27,20 +27,29 @@ const userSchema = new mongoose.Schema({
         enum: ['employee', 'admin', 'manager','superadmin'] ,
         required:true,
         },
-    department: {
+        department: {
             type: String,
-            enum: ['HR', 'Finance', 'IT', 'Facilities'],
-            required: function() { 
-                return ['admin', 'manager', 'superadmin'].includes(this.role);
+            enum: ['HR', 'IT', 'Finance', 'Facilities'],
+            required: function () {
+              return ['admin', 'manager', 'superadmin', 'employee'].includes(this.role);
             },
             validate: {
-                validator: function(value) {
-                    return !(this.role === "employee" && value);
-                },
-                message: "Employee cannot have a department",
+              validator: function (value) {
+                if (this.role === "employee") {
+                  return ['HR', 'IT', 'Finance'].includes(value); // employee-allowed departments
+                }
+                return ['HR', 'IT', 'Finance', 'Facilities'].includes(value); // broader access for others
+              },
+              message: "Invalid department for this role",
             }
-        },
-        
+          },
+          status: {
+            type: String,
+            enum: ['pending', 'active', 'inactive', 'suspended', 'terminated'],
+            default: function () {
+              return this.role === 'superadmin' ? 'active' : 'pending';
+            }
+          },
     photoUrl:{
        type:String,
        default:"https://as1.ftcdn.net/v2/jpg/00/64/67/52/1000_F_64675209_7ve2XQANuzuHjMZXP3aIYIpsDKEbF5dD.jpg",

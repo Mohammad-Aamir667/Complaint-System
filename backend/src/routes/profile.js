@@ -1,0 +1,47 @@
+const express = require('express');
+const { userAuth } = require('../middlewares/auth');
+const profileRouter = express.Router();
+const multer = require('multer'); 
+const { uploadToCloudinary } = require("../utils/cloudinaryConfig");
+const { validateEditProfileData } = require('../utils/validation');
+const upload = multer({ dest: 'uploadImage/' });
+profileRouter.get("/user/profile",userAuth,async (req,res)=>{
+    try{
+       const loggedInUser = req.user; 
+     return res.json(loggedInUser);
+    }
+    catch(err){
+         res.status(500).json(err)
+    }      
+});
+profileRouter.post("/editProfile",userAuth,async (req,res)=>{
+  try{
+   if(!validateEditProfileData(req)){
+ res.status(400).send("Invalid Edit Request");
+}
+  const loggedInUser = req.user;
+  Object.keys(req.body).forEach((key)=>{
+   loggedInUser[key] = req.body[key];
+  });
+  await loggedInUser.save();
+  res.json(
+  loggedInUser
+  )
+}
+catch (err) {
+ res.status(500).send(err.message || "Internal Server Error");
+}
+
+})
+profileRouter.post("/uploadImage", userAuth, upload.single('file'), async (req, res) => {
+  try {
+    const user = req.user;
+    const imageUrl = await uploadToCloudinary(req.file); 
+    user.photoUrl = imageUrl;
+    await user.save();
+    res.json({ url: imageUrl });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+module.exports = profileRouter;

@@ -23,10 +23,12 @@ const authRouter = require("./routes/auth");
 const userComplaintRouter = require("./routes/complaints/userComplaint");
 const adminComplaintRouter = require("./routes/complaints/adminComplaint");
 const managerComplaintRouter = require("./routes/complaints/managerComplaint");
+const profileRouter = require("./routes/profile");
 app.use("/",authRouter);
 app.use("/",userComplaintRouter);
 app.use("/",adminComplaintRouter);
 app.use("/",managerComplaintRouter);
+app.use("/",profileRouter)
 connectDB().then(()=>{
     console.log("connected successfully")
     server.listen(PORT,"0.0.0.0",()=>{
