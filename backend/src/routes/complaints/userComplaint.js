@@ -7,7 +7,10 @@ const AuditLog = require("../../models/auditLog");
 const createNotification = require("../../utils/createNotification");
 const { userAuth } = require("../../middlewares/auth");
 const { calculatePriorityNLP } = require("../../utils/priorityCalculatorNLP");
-userComplaintRouter.post("/complaint/lodge",userAuth,async (req,res)=>{
+const multer = require("multer");
+const { uploadToCloudinary } = require("../../utils/cloudinaryConfig");
+const upload = multer({ dest: "uploads/" });
+userComplaintRouter.post("/complaint/lodge",upload.single("attachment"),userAuth,async (req,res)=>{
     try{ 
         const user = req.user;
         const {title,description,category} = req.body;
@@ -65,7 +68,10 @@ userComplaintRouter.post("/complaint/lodge",userAuth,async (req,res)=>{
     
         const complaintId = `CMP-${todayTime}-${String(count + 1).padStart(4, "0")}`;
         const UpdatedPriority = calculatePriorityNLP(description);
-       
+        let attachmentUrl = null;
+        if(req.file){
+         attachmentUrl = await uploadToCloudinary(req.file);
+}
         const complaint = new Complaint({
             title,      
             description,
@@ -74,6 +80,14 @@ userComplaintRouter.post("/complaint/lodge",userAuth,async (req,res)=>{
             createdBy:user._id,
             assignedAdmin: leastBusyAdmin._id,
             complaintId: complaintId,
+             attachments: attachmentUrl? [
+                {
+                    fileName: req.file.originalname,
+                    fileUrl: attachmentUrl,
+                    uploadedBy: user._id,
+                    uploadedAt: new Date()
+                }
+             ] : undefined,
         });
         await complaint.save();
         const audit = new AuditLog({
@@ -83,10 +97,6 @@ userComplaintRouter.post("/complaint/lodge",userAuth,async (req,res)=>{
             reason: 'Complaint filed by user',
         });
         await audit.save();
-        if(UpdatedPriority === 'critical'){
-            const superAdmin = await User.findOne({ role: 'superAdmin', department: category });
-                await createNotification(superAdmin._id, `Critical Complaint Filed: ${title}`);
-        }
         createNotification(leastBusyAdmin._id, `New complaint filed: ${title}`);
         res.json(complaint);
     }    

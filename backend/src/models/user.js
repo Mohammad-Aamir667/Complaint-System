@@ -50,15 +50,16 @@ const userSchema = new mongoose.Schema({
               return this.role === 'superadmin' ? 'active' : 'pending';
             }
           },
-    photoUrl:{
-       type:String,
-       default:"https://as1.ftcdn.net/v2/jpg/00/64/67/52/1000_F_64675209_7ve2XQANuzuHjMZXP3aIYIpsDKEbF5dD.jpg",
-       validate(value){
-        if(!validator.isURL(value)){
-            throw new Error("Invalid URL")
-        }
-       }
-    },
+          photoUrl: {
+            type: String,
+            default: '/placeholder.svg',
+            validate(value) {
+              // Allow both absolute URLs and relative paths
+              if (!validator.isURL(value) && !value.startsWith('/')) {
+                throw new Error("Must be a valid URL or relative path");
+              }
+            }
+          },
     gender:{
         type:String,
         lowercase:true,

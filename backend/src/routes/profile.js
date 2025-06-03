@@ -4,6 +4,7 @@ const profileRouter = express.Router();
 const multer = require('multer'); 
 const { uploadToCloudinary } = require("../utils/cloudinaryConfig");
 const { validateEditProfileData } = require('../utils/validation');
+const User = require('../models/user');
 const upload = multer({ dest: 'uploadImage/' });
 profileRouter.get("/user/profile",userAuth,async (req,res)=>{
     try{
@@ -44,4 +45,18 @@ profileRouter.post("/uploadImage", userAuth, upload.single('file'), async (req, 
     res.status(500).json({ error: error.message });
   }
 });
+profileRouter.post('/removeProfilePhoto', userAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const defaultImageUrl = "/placeholder.svg"; 
+
+    await User.findByIdAndUpdate(userId, { photoUrl: defaultImageUrl });
+
+    res.status(200).json({ message: "Profile photo removed successfully." });
+  } catch (err) {
+    console.error("Error removing profile photo:", err);
+    res.status(500).json({ message: "Server error." });
+  }
+});
+
 module.exports = profileRouter;

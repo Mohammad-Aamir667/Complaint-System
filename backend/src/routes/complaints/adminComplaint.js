@@ -33,6 +33,9 @@ adminComplaintRouter.put("/complaints/:complaintId/assign-manager",userAuth,isAd
      complaint.assignedManager = leastBusyManager._id;
 
      await complaint.save();
+     const populatedComplaint = await Complaint.findById(complaint._id)
+     .populate('assignedManager', 'firstName lastName emailId department') // Specify fields you need
+     .exec();
      const audit =  new AuditLog({
             complaintId: complaint._id,
             action: 'Manager Assignment',
@@ -48,6 +51,7 @@ adminComplaintRouter.put("/complaints/:complaintId/assign-manager",userAuth,isAd
             await createNotification(superAdmin._id, `Critical Complaint Assigned: ${complaint.title}`);
            
         }
+
         const audit = new AuditLog({
             complaintId: complaint._id,
             action: "Marked as critical",
@@ -60,7 +64,7 @@ adminComplaintRouter.put("/complaints/:complaintId/assign-manager",userAuth,isAd
     
 
     await createNotification(leastBusyManager._id, `New complaint assigned: ${complaint.title}`);
-    res.status(200).json({ message: "Complaint automatically assigned to manager", complaint });
+    res.status(200).json({ message: "Complaint automatically assigned to manager",complaint: populatedComplaint });
  }
 
     catch{
@@ -85,6 +89,9 @@ adminComplaintRouter.put("/complaints/:complaintId/assign-manager-manual",userAu
  }
   complaint.assignedManager = manager._id;
   await complaint.save();
+  const populatedComplaint = await Complaint.findById(complaint._id)
+  .populate('assignedManager', 'firstName lastName emailId department') // Specify fields you need
+  .exec();
   const audit =  new AuditLog({
     complaintId: complaint._id,
     action: 'Manager Manual Assignment',
@@ -109,7 +116,7 @@ if (critical === true) {
     await audit.save();
 }
   createNotification(managerId, `New complaint assigned: ${complaint.title}`);
-  res.status(200).json({ message: "Complaint manually assigned to manager", complaint });
+  res.status(200).json({ message: "Complaint manually assigned to manager", complaint:populatedComplaint });
 } 
 catch (err) {
   res.status(500).json({ message: "Error occurred", error: err.message });
@@ -143,6 +150,9 @@ try{
              }
              complaint.assignedManager = leastBusyManager._id;
              await complaint.save();
+             const populatedComplaint = await Complaint.findById(complaint._id)
+             .populate('assignedManager', 'firstName lastName emailId department') // Specify fields you need
+             .exec();
              const audit =  new AuditLog({
                  complaintId: complaint._id,
                  action: 'Manager Reassignment',
@@ -153,7 +163,7 @@ try{
              });
              await audit.save();
              await createNotification(leastBusyManager._id, `Escalated complaint assigned: ${complaint.title}`);
-          res.json({message:"Complaint escalated successfully",complaint});
+          res.json({message:"Complaint escalated successfully",complaint:populatedComplaint});
          } 
 
 catch{
@@ -181,6 +191,9 @@ adminComplaintRouter.put("/complaints/:complaintId/escalate-manual",userAuth,isA
   }
   complaint.assignedManager = newManagerId;
   await complaint.save();
+  const populatedComplaint = await Complaint.findById(complaint._id)
+             .populate('assignedManager', 'firstName lastName emailId department') // Specify fields you need
+             .exec();
   const audit =  new AuditLog({
      complaintId: complaint._id,
      action: 'Manager Reassignment',
@@ -191,7 +204,7 @@ adminComplaintRouter.put("/complaints/:complaintId/escalate-manual",userAuth,isA
  });
  await audit.save();
   createNotification(newManagerId, `Escalated complaint assigned: ${complaint.title}`);
-  res.status(200).json({ message: "Escalated complaint manually assigned to manager", complaint });
+  res.status(200).json({ message: "Escalated complaint manually assigned to manager", complaint:populatedComplaint });
 } 
 catch (err) {
   res.status(500).json({ message: "Error occurred", error: err.message });
@@ -231,4 +244,18 @@ catch (err) {
   res.status(500).json({ message: "Error occurred", error: err.message });
 }
 }); 
+adminComplaintRouter.get("/admin/complaints",userAuth,isAdmin,async (req,res)=>{
+     try{
+         const user = req.user;
+         const allComplaints = await Complaint.find({assignedAdmin: user._id}).populate('createdBy', 'firstName lastName emailId role department').populate('assignedManager', 'firstName lastName emailId department').exec();
+         if (!allComplaints || allComplaints.length === 0) {
+             return res.status(404).json({ message: "No complaints found for this admin" });
+         }
+            res.status(200).json(allComplaints);
+     }
+     catch(err){
+            res.status(500).json({ message: "Error occurred", error: err.message });
+     }
+});
+
 module.exports = adminComplaintRouter;
