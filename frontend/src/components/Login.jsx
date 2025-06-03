@@ -17,12 +17,12 @@ import { addUser } from "../utils/userSlice"
 import { BASE_URL } from "../utils/constants"
 
 const Login = () => {
-  const [emailId, setEmailId] = useState("")
+  const [emailId, setEmailId] = useState("arhan123@gmail.com")
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [isLoginForm, setIsLoginForm] = useState(true)
-  const [password, setPassword] = useState("")
+  const [password, setPassword] = useState("Arhan@123")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const [passwordMatchError, setPasswordMatchError] = useState(false)

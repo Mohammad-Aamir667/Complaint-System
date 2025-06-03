@@ -7,43 +7,49 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useNavigate } from 'react-router-dom'
 
 const Body = () => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); 
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((store) => store?.user);
 
-  const fetchUser = async ()=>{
-      
-    try{   
-      const res = await axios.get(BASE_URL+"/user/profile",{
-       withCredentials:true,
+  const fetchUser = async () => {
+ try {   
+      setLoading(true); // Ensure loading state when fetching
+      const res = await axios.get(BASE_URL+"/user/profile", {
+        withCredentials: true,
       });
-    dispatch(addUser(res.data));
-    
-       }
-       catch (err) {
-        if (err?.response?.status === 401) {
-          navigate("/login");
-        } else {
-          console.log("Fetch user error", err);
-        }
-      } finally {
-        setLoading(false); 
+      dispatch(addUser(res.data));
+    } catch (err) {
+      if (err?.response?.status === 401) {
+        navigate("/login");
+      } else {
+        console.log("Fetch user error", err);
       }
+    } finally {
+      setLoading(false); 
+    }
   }
-  useEffect(() => {
-    if (!user) fetchUser();
-    else setLoading(false); 
-  }, []);
 
-  if (loading)  return  ( <div className="text-center py-8 flex flex-col items-center">
-  <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-  <p className="mt-3 text-gray-300 font-medium">Loading...</p>
-</div>
-)
+  useEffect(() => {
+    // Always fetch user on mount, regardless of existing user state
+    fetchUser();
+  }, []); // Empty dependency array to run only once on mount
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
+        <div className="text-center flex flex-col items-center">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+          <p className="mt-3 text-gray-600 font-medium">Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
+ 
+
   return (
     <div>
-        <Outlet />
+      <Outlet />
     </div>
   )
 }

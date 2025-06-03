@@ -12,6 +12,7 @@ import ProtectedRouteByRole from "./components/ProtectedRouteByRole"
 import SuperAdminDashboard from "./components/superadmin/SuperAdminDashboard"
 import AdminDashboard from "./components/admin/AdminDashboard"
 import EditProfile from "./components/EditProfile"
+import AssignManager from "./components/admin/AssignManager"
 
 function App() {
   return (
@@ -28,7 +29,7 @@ function App() {
       <Route path = "/employee/lodge-complaint" element={<LodgeComplaint/>}></Route>
       <Route path = "/profile" element = {<Profile/>}></Route>
       <Route path = "/profile/edit" element = {<EditProfile/>}></Route>
-
+      <Route path = "/assign-manager/:_id" element = {<ProtectedRouteByRole allowedRoles={["admin"]}><AssignManager /></ProtectedRouteByRole>}></Route>
       </Route>
       </Routes>
       </BrowserRouter>

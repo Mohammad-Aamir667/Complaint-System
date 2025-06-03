@@ -180,6 +180,7 @@ const Profile = () => {
                       <div className="font-medium">{user.department}</div>
                     </div>
                   )}
+                  
                   {user?.joiningDate && (
                     <div className="space-y-2">
                       <div className="flex items-center text-sm text-gray-600">

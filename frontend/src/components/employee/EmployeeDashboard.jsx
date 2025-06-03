@@ -155,7 +155,7 @@ const EmployeeDashboard = () => {
   const dispatch = useDispatch();
   const userComplaints = useSelector((store) => store.userComplaints);
    const user = useSelector((store) => store?.user);
-    const navigate = useNavigate();
+      const navigate = useNavigate();
    const formattedDate = (createdAt)=>{
     const date = new Date(createdAt);
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -328,11 +328,16 @@ const EmployeeDashboard = () => {
                     </div>
                    {user?.department &&  (<div className="flex justify-between">
                     <span className="text-gray-600">Department:</span>
-<span className="font-medium">{user?.department}</span>  </div>)}
+              <span className="font-medium">{user?.department}</span>  </div>)}
                     <div className="flex justify-between">
                       <span className="text-gray-600">Joining Date:</span>
                       <span className="font-medium">{user?.joiningDate}</span>
+                      </div>
+                      <div className="flex justify-between">
+                      <span className="text-gray-600">Gender:</span>
+                      <span className="font-medium">{user?.gender.charAt(0).toUpperCase() + user?.gender.slice(1).toLowerCase()}</span>
                     </div>
+                  
                   </div>
                 </div>
               </CardContent>
