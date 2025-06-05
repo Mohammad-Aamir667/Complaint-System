@@ -53,7 +53,7 @@ userComplaintRouter.post("/complaint/lodge",upload.single("attachment"),userAuth
         let minComplaints = Infinity;
         for(const admin of admins){
             const complaintCount = await Complaint.countDocuments({ assignedAdmin: admin._id, status: { $ne: 'resolved' } });
-            if (complaintCount < minComplaints) {
+            if (complaintCount < minComplaints ) {
                 minComplaints = complaintCount;
                 leastBusyAdmin = admin;
             }
