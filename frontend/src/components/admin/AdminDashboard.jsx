@@ -1,17 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { BarChart3,Bell,FileText, Home,MessageSquare,Plus,  Search, TrendingUp,User,LogOut,Clock, CheckCircle, AlertCircle,XCircle,Settings, Menu,
+import { BarChart3,Bell,FileText, Home,MessageSquare,  Search, TrendingUp,User,LogOut,Clock, CheckCircle, AlertCircle,XCircle,Settings, Menu,
   X,
   Users,
-  MoreHorizontal,
   ArrowUpCircle,
-  UserCheck,
-  Eye,
-  Edit,
-  AlertTriangle,
 } from "lucide-react"
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -172,7 +167,7 @@ const AdminDashboard = () => {
    if (adcomplaints) {
      recentAdminComplaint = [...adcomplaints]
        .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-       .slice(0, 3); // Get top 3 most recent
+       .slice(0, 3);
    }
     
 
@@ -262,10 +257,6 @@ const AdminDashboard = () => {
               <h1 className="text-3xl font-bold text-gray-900">Welcome back, {mockAdmin.firstName}!</h1>
               <p className="text-gray-600 mt-1">Manage complaints and oversee resolution progress</p>
             </div>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Create Report
-            </Button>
           </div>
 
           {/* Stats Cards */}

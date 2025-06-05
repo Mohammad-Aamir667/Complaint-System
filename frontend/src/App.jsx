@@ -16,6 +16,7 @@ import AssignManager from "./components/admin/AssignManager"
 import ManagerData from "./components/admin/ManagerData"
 import AdminComplaint from "./components/admin/AdminComplaint"
 import Notifications from "./components/Notifications"
+import EscalateComplaint from "./components/admin/EscalateComplaint"
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
       <Route path = "/managers" element = {<ProtectedRouteByRole allowedRoles={["admin"]}><ManagerData /></ProtectedRouteByRole>}></Route>
       <Route path = "/admin/complaints" element = {<ProtectedRouteByRole allowedRoles={["admin"]}><AdminComplaint /></ProtectedRouteByRole>}></Route>
       <Route path = "/notifications" element = {<Notifications/>}></Route>
+      <Route path = "/escalate/:complaintId" element = {<ProtectedRouteByRole allowedRoles={["admin"]}><EscalateComplaint /></ProtectedRouteByRole>}></Route>
       </Route>
       </Routes>
       </BrowserRouter>

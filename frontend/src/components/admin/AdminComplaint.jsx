@@ -95,6 +95,7 @@ const AdminComplaint = () => {
       const dispatch = useDispatch()
       const navigate = useNavigate()
       const managers = useSelector((store) => store.managerData);
+      console.log(managers);
       const fetchComplaints = async () =>{
         try{
           const res =  await axios.get (BASE_URL + "/admin/complaints", {withCredentials: true});

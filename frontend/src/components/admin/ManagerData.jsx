@@ -53,6 +53,7 @@ const ManagerData = () => {
   }
 
   useEffect(() => {
+    if(managers?.length === 0)
     fetchManagers()
   }, [])
 

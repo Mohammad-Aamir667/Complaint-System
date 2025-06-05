@@ -146,6 +146,7 @@ const Notifications = () => {
   }
 
   useEffect(() => {
+    if(notifications?.length === 0)
     getNotifications()
   }, [])
 

@@ -19,6 +19,7 @@ import {
   Paperclip,
   Clock,
   Shield,
+  ArrowUpCircle,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -40,10 +41,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { BASE_URL } from "@/utils/constants"
-import { updateManagerData } from "@/utils/managerDataSlice"
+import { addManagerData, updateManagerData } from "@/utils/managerDataSlice"
 import { addAdminComplaint, updateAdminComplaint } from "@/utils/adminComplaintSlice"
-
-
 
 const getPriorityColor = (priority) => {
   switch (priority?.toLowerCase()) {
@@ -93,7 +92,6 @@ const AssignManager = () => {
   const { selectedManagers = [] } = location.state || {}
   const [open, setOpen] = useState(false)
   const adminComplaint = useSelector((store) => store.adminComplaints)
-  console.log("Admin complaints:", adminComplaint)
   const complaint = adminComplaint.find((c) => c._id === _id)
   const [selectedManagerId, setSelectedManagerId] = useState(null)
   const selectedManager = selectedManagers.find((m) => m._id === selectedManagerId)
@@ -104,6 +102,12 @@ const AssignManager = () => {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState("")
   const [error, setError] = useState("")
+  const [escalateModalOpen, setEscalateModalOpen] = useState(false)
+  const [escalationType, setEscalationType] = useState("") // "auto" or "manual"
+  const managers = useSelector((store) => store.managerData)
+  const [newManager, setNewManager] = useState("")
+  const [escalateReason, setEscalateReason] = useState("")
+  const user = useSelector((store) => store.user)
 
   const handleAutoAssign = async () => {
     try {
@@ -210,6 +214,64 @@ const AssignManager = () => {
     }
   }
 
+  const handleAutoEscalate = async () => {
+    try {
+      setLoading(true)
+      setError("")
+      const res = await axios.put(
+        BASE_URL + `/complaints/${complaint?._id}/escalate`,
+        { reason: escalateReason },
+        { withCredentials: true },
+      )
+      dispatch(updateAdminComplaint(res.data.complaint))
+      setSuccess("Complaint escalated successfully!")
+      setEscalateModalOpen(false)
+      setEscalateReason("")
+      setTimeout(() => {
+        setSuccess("")
+      }, 2000)
+    } catch (err) {
+      console.error("Error escalating complaint:", err)
+      setError(err.response?.data?.message || "Failed to escalate complaint. Please try again.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const submitManualEscalation = async () => {
+    try {
+      setLoading(true)
+      setError("")
+      const res = await axios.put(
+        BASE_URL + `/complaints/${complaint?._id}/escalate-manual`,
+        { reason: escalateReason, newManagerId: newManager },
+        { withCredentials: true },
+      )
+      dispatch(updateAdminComplaint(res.data.complaint))
+      setSuccess("Complaint escalated to new manager successfully!")
+      setEscalateModalOpen(false)
+      setEscalateReason("")
+      setNewManager("")
+      setEscalationType("")
+      setTimeout(() => {
+        setSuccess("")
+      }, 2000)
+    } catch (err) {
+      console.error("Error escalating complaint:", err)
+      setError(err.response?.data?.message || "Failed to escalate complaint. Please try again.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleEscalateSubmit = () => {
+    if (escalationType === "auto") {
+      handleAutoEscalate()
+    } else if (escalationType === "manual") {
+      submitManualEscalation()
+    }
+  }
+
   const handleGoBack = () => {
     navigate(-1)
   }
@@ -234,12 +296,30 @@ const AssignManager = () => {
     document.body.removeChild(link)
   }
 
+  const fetchManagers = async () => {
+    try {
+      const res = await axios.get(BASE_URL + "/managers/complaint-stats", { withCredentials: true })
+      dispatch(addManagerData(res.data))
+      console.log("Fetched managers:", res.data)
+    } catch (err) {
+      console.error("Error fetching managers:", err)
+    }
+  }
+
+  // Get available managers for escalation (excluding current assigned manager)
+  const availableManagersForEscalation = managers.filter(
+    (manager) => manager?._id.toString() !== complaint?.assignedManager?._id.toString(),
+  )
+
   useEffect(() => {
     if (!complaint) {
       fetchComplaints()
     }
     if (complaint?.critical) {
       setCritical(true)
+    }
+    if (managers?.length === 0) {
+      fetchManagers()
     }
   }, [complaint])
 
@@ -307,6 +387,12 @@ const AssignManager = () => {
                         <Badge variant="destructive" className="ml-2">
                           <AlertTriangle className="h-3 w-3 mr-1" />
                           CRITICAL
+                        </Badge>
+                      )}
+                      {complaint?.escalated && (
+                        <Badge variant="destructive" className="ml-2">
+                          <ArrowUpCircle className="h-3 w-3 mr-1" />
+                          ESCALATED
                         </Badge>
                       )}
                     </CardTitle>
@@ -707,6 +793,142 @@ const AssignManager = () => {
                   </Dialog>
                   <p className="text-xs text-gray-500">Current: {complaint?.priority?.toUpperCase()} priority</p>
                 </div>
+
+                {/* Escalate Complaint - Only show if complaint is assigned */}
+                {complaint?.assignedManager && (
+                  <>
+                    <Separator />
+                    <div className="space-y-2">
+                      <Dialog open={escalateModalOpen} onOpenChange={setEscalateModalOpen}>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant={complaint?.escalated ? "default" : "destructive"}
+                            className="w-full"
+                            disabled={complaint?.escalated || loading}
+                          >
+                            <ArrowUpCircle className="h-4 w-4 mr-2" />
+                            {complaint?.escalated ? "Already Escalated" : "Escalate Complaint"}
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-md">
+                          <DialogHeader>
+                            <DialogTitle>Escalate Complaint</DialogTitle>
+                            <DialogDescription>
+                              Choose how you want to escalate this complaint to higher management
+                            </DialogDescription>
+                          </DialogHeader>
+
+                          <div className="space-y-4">
+                            {/* Escalation Type Selection */}
+                            <div>
+                              <Label>Escalation Type</Label>
+                              <Select value={escalationType} onValueChange={setEscalationType}>
+                                <SelectTrigger className="w-full">
+                                  <SelectValue placeholder="Choose escalation method" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="auto">Auto Escalate</SelectItem>
+                                  <SelectItem value="manual">Manual Escalate</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <p className="text-xs text-gray-500 mt-1">
+                                {escalationType === "auto"
+                                  ? "System will automatically assign to the best available senior manager"
+                                  : escalationType === "manual"
+                                    ? "Choose a specific manager to escalate to"
+                                    : "Select an escalation method"}
+                              </p>
+                            </div>
+
+                            {/* Manual Manager Selection */}
+                            {escalationType === "manual" && (
+                              <div>
+                                <Label>Select Manager</Label>
+                                <Select value={newManager} onValueChange={setNewManager}>
+                                  <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Choose a manager" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {availableManagersForEscalation.map((manager) => (
+                                      <SelectItem key={manager._id} value={manager._id}>
+                                        {manager.firstName} {manager.lastName} - {manager.department || "General"}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            )}
+
+                            {/* Escalation Reason */}
+                            <div>
+                              <Label htmlFor="escalateReason">Reason for Escalation</Label>
+                              <Textarea
+                                id="escalateReason"
+                                placeholder="Explain why this complaint needs to be escalated..."
+                                rows={3}
+                                value={escalateReason}
+                                onChange={(e) => setEscalateReason(e.target.value)}
+                              />
+                            </div>
+
+                            {/* Current Manager Info */}
+                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                              <p className="text-sm font-medium text-gray-700 mb-2">Currently Assigned To:</p>
+                              <div className="flex items-center gap-2">
+                                <Avatar className="h-6 w-6">
+                                  <AvatarFallback className="text-xs">
+                                    {complaint.assignedManager?.firstName?.[0] || "M"}
+                                    {complaint.assignedManager?.lastName?.[0] || ""}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <span className="text-sm">
+                                  {complaint.assignedManager?.firstName} {complaint.assignedManager?.lastName}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <DialogFooter className="pt-4">
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                setEscalateModalOpen(false)
+                                setEscalationType("")
+                                setNewManager("")
+                                setEscalateReason("")
+                              }}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              onClick={handleEscalateSubmit}
+                              disabled={
+                                !escalationType ||
+                                !escalateReason.trim() ||
+                                (escalationType === "manual" && !newManager) ||
+                                loading
+                              }
+                            >
+                              {loading ? (
+                                <>
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                  Escalating...
+                                </>
+                              ) : (
+                                "Escalate Complaint"
+                              )}
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                      <p className="text-xs text-gray-500">
+                        {complaint?.escalated
+                          ? "This complaint has been escalated"
+                          : "Escalate to higher management for urgent attention"}
+                      </p>
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
 
