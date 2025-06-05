@@ -54,9 +54,10 @@ const userSchema = new mongoose.Schema({
             type: String,
             default: '/placeholder.svg',
             validate(value) {
-              // Allow both absolute URLs and relative paths
               if (!validator.isURL(value) && !value.startsWith('/')) {
-                throw new Error("Must be a valid URL or relative path");
+                const err =  new Error("Must be a valid URL or relative path");
+                err.statusCode = 400;
+                throw err;
               }
             }
           },
@@ -65,7 +66,9 @@ const userSchema = new mongoose.Schema({
         lowercase:true,
         validate(value){
             if(!["male","female","others"].includes(value)){
-                 throw new Error("Gender is not valid");
+               const err = new Error("Enter a valid Gender");
+               err.statusCode = 400;
+               throw err;
             }
         }
     },
@@ -74,7 +77,9 @@ const userSchema = new mongoose.Schema({
     required:true,
     validate(value){
         if(!validator.isStrongPassword(value)){
-            throw new Error("Please enter a strong password");
+          const err =  new Error("Please enter a strong password");
+          err.statusCode = 400;
+          throw err;
         }
     }
     },

@@ -17,9 +17,7 @@ profileRouter.get("/user/profile",userAuth,async (req,res)=>{
 });
 profileRouter.post("/editProfile",userAuth,async (req,res)=>{
   try{
-   if(!validateEditProfileData(req)){
- res.status(400).send("Invalid Edit Request");
-}
+   validateEditProfileData(req)
   const loggedInUser = req.user;
   Object.keys(req.body).forEach((key)=>{
    loggedInUser[key] = req.body[key];
@@ -30,6 +28,9 @@ profileRouter.post("/editProfile",userAuth,async (req,res)=>{
   )
 }
 catch (err) {
+   if (err.statusCode === 400) {
+      return res.status(400).json(err.message);
+    }
  res.status(500).send(err.message || "Internal Server Error");
 }
 

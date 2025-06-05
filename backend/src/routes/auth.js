@@ -10,6 +10,7 @@ const { userAuth } = require("../middlewares/auth");
 authRouter.post("/signup", async (req, res)=>{
     try {
        validateSignUpData(req); 
+      
        const {firstName,lastName,emailId,password,role,department} = req.body;
        const existingUser = await User.findOne({ emailId });
        if (existingUser) {

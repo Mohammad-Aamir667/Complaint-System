@@ -9,7 +9,7 @@ sharedRouter.get("/managers/complaint-stats", userAuth, async (req, res) => {
           }
           
         const managers = await User.aggregate([
-          { $match: { role: "manager" } },
+          { $match: { role: "manager" ,  department : req.user.department} },
           {
             $lookup: {
               from: "complaints",
