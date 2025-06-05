@@ -13,6 +13,9 @@ import SuperAdminDashboard from "./components/superadmin/SuperAdminDashboard"
 import AdminDashboard from "./components/admin/AdminDashboard"
 import EditProfile from "./components/EditProfile"
 import AssignManager from "./components/admin/AssignManager"
+import ManagerData from "./components/admin/ManagerData"
+import AdminComplaint from "./components/admin/AdminComplaint"
+import Notifications from "./components/Notifications"
 
 function App() {
   return (
@@ -30,6 +33,9 @@ function App() {
       <Route path = "/profile" element = {<Profile/>}></Route>
       <Route path = "/profile/edit" element = {<EditProfile/>}></Route>
       <Route path = "/assign-manager/:_id" element = {<ProtectedRouteByRole allowedRoles={["admin"]}><AssignManager /></ProtectedRouteByRole>}></Route>
+      <Route path = "/managers" element = {<ProtectedRouteByRole allowedRoles={["admin"]}><ManagerData /></ProtectedRouteByRole>}></Route>
+      <Route path = "/admin/complaints" element = {<ProtectedRouteByRole allowedRoles={["admin"]}><AdminComplaint /></ProtectedRouteByRole>}></Route>
+      <Route path = "/notifications" element = {<Notifications/>}></Route>
       </Route>
       </Routes>
       </BrowserRouter>
