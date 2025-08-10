@@ -10,7 +10,7 @@ adminComplaintRouter.put("/complaints/:complaintId/assign-manager",userAuth,isAd
      const user = req.user;
      const { complaintId } = req.params;
      const {critical} = req.body;
-     const complaint = await Complaint.findById(complaintId);
+     const complaint = await Complaint.findOne({_id:complaintId,category:user.department,assignedAdmin:user._id});
      if (!complaint) {
          return res.status(404).json({ message: "Complaint not found" });
      }
@@ -48,8 +48,7 @@ adminComplaintRouter.put("/complaints/:complaintId/assign-manager",userAuth,isAd
         complaint.critical = true;
         const superAdmin = await User.findOne({ role: 'superAdmin', department: complaint.category });
         if (superAdmin) {
-            await createNotification(superAdmin._id, `Critical Complaint Assigned: ${complaint.title}`);
-           
+            await createNotification(superAdmin._id, `Critical Complaint Assigned: ${complaint.title}`);   
         }
 
         const audit = new AuditLog({
@@ -76,11 +75,11 @@ adminComplaintRouter.put("/complaints/:complaintId/assign-manager-manual",userAu
   const user = req.user;
   const { complaintId } = req.params;
   const { managerId,critical } = req.body;
-  const complaint = await Complaint.findById(complaintId);
+     const complaint = await Complaint.findOne({_id:complaintId,category:user.department,assignedAdmin:user._id});
   if (!complaint) {
       return res.status(404).json({ message: "Complaint not found" });
   }      
-  const manager = await User.findById(managerId);
+  const manager = await User.findOne({_id:managerId,department:user.department});
   if(manager.status !== "active"){
     return res.status(400).json({message:"the manager is not active"});
   }
@@ -129,21 +128,21 @@ adminComplaintRouter.put("/complaints/:complaintId/escalate",userAuth,isAdmin,as
 try{      
         const user = req.user;
         const { complaintId } = req.params;
-         const {reason} = req.body;
-        
-        
+         const {reason} = req.body;   
           const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
              const complaint = await Complaint.findOne({
                  _id:complaintId,
                  priority: 'high',
                  status: { $ne: 'resolved' },
                  createdAt: { $lt: twentyFourHoursAgo },
-                 escalated: false  
+                 escalated: false,
+                 assignedAdmin:user._id,
+                 category: user.department,  
              });
              if (!complaint){
                 return res.status(404).json({ message: "Complaint not found" });
             }
-
+       
           const prevManagerId = complaint.assignedManager;
           const managers = await User.find({ role: "manager", department: complaint.category ,status:"active"});
              let leastBusyManager = null;
@@ -161,7 +160,7 @@ try{
              complaint.escalated = true;
              await complaint.save();
              const populatedComplaint = await Complaint.findById(complaint._id)
-             .populate('assignedManager', 'firstName lastName emailId department') // Specify fields you need
+             .populate('assignedManager', 'firstName lastName emailId department') 
              .exec();
              const audit =  new AuditLog({
                  complaintId: complaint._id,
@@ -185,11 +184,14 @@ adminComplaintRouter.put("/complaints/:complaintId/escalate-manual",userAuth,isA
   const user = req.user;
   const { complaintId } = req.params;
   const { newManagerId,reason } = req.body;
-  const complaint = await Complaint.findById(complaintId);
+  const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const complaint = await Complaint.findOne({_id:complaintId, createdAt: { $lt: twentyFourHoursAgo },category:user.department,assignedAdmin:user._id});
   if (!complaint) {
       return res.status(404).json({ message: "Complaint not found" });
-  }      
-  const newManager = await User.findById(newManagerId);
+  }    
+  
+   
+  const newManager = await User.findOne({_id:newManagerId,department:user.department});
   if (!newManager || newManager.role !== 'manager') {
       return res.status(400).json({ message: "Invalid manager selected" });
   }
@@ -232,7 +234,7 @@ adminComplaintRouter.put("/complaints/:complaintId/priority-manual",userAuth,isA
   const user = req.user;
   const { complaintId } = req.params;
   const { priority,reason } = req.body;
-  const complaint = await Complaint.findById(complaintId);
+  const complaint = await Complaint.findOne({_id:complaintId,category:user.department,assignedAdmin:user._id});
   if (!complaint) {
       return res.status(404).json({ message: "Complaint not found" });
   }      
@@ -264,7 +266,7 @@ catch (err) {
 adminComplaintRouter.get("/admin/complaints",userAuth,isAdmin,async (req,res)=>{
      try{
          const user = req.user;
-         const allComplaints = await Complaint.find({assignedAdmin: user._id}).populate('createdBy', 'firstName lastName emailId role department').populate('assignedManager', 'firstName lastName emailId department').exec();
+         const allComplaints = await Complaint.find({assignedAdmin: user._id,category:user.department}).populate('createdBy', 'firstName lastName emailId role department').populate('assignedManager', 'firstName lastName emailId department').exec();
          if (!allComplaints || allComplaints.length === 0) {
              return res.status(404).json({ message: "No complaints found for this admin" });
          }
