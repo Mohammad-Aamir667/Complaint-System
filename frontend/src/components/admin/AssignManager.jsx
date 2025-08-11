@@ -103,7 +103,7 @@ const AssignManager = () => {
   const [success, setSuccess] = useState("")
   const [error, setError] = useState("")
   const [escalateModalOpen, setEscalateModalOpen] = useState(false)
-  const [escalationType, setEscalationType] = useState("") // "auto" or "manual"
+  const [escalationType, setEscalationType] = useState("") 
   const managers = useSelector((store) => store.managerData)
   const [newManager, setNewManager] = useState("")
   const [escalateReason, setEscalateReason] = useState("")
