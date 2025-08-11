@@ -13,10 +13,15 @@ import SuperAdminDashboard from "./components/superadmin/SuperAdminDashboard"
 import AdminDashboard from "./components/admin/AdminDashboard"
 import EditProfile from "./components/EditProfile"
 import AssignManager from "./components/admin/AssignManager"
-import ManagerData from "./components/admin/ManagerData"
+import ManagerData from "./components/common/ManagerData"
 import AdminComplaint from "./components/admin/AdminComplaint"
 import Notifications from "./components/Notifications"
 import EscalateComplaint from "./components/admin/EscalateComplaint"
+import ComplaintDetailsManager from "./components/manager/ComplaintDetailsManager"
+import ManagerComplaint from "./components/manager/ManagerComplaint"
+import AdminData from "./components/superadmin/AdminData"
+import SuperAdminComplaints from "./components/superadmin/SuperAdminComplaints"
+import SuperAdminComplaintDetails from "./components/superadmin/SuperAdminComplaintDetails"
 
 function App() {
   return (
@@ -34,10 +39,17 @@ function App() {
       <Route path = "/profile" element = {<Profile/>}></Route>
       <Route path = "/profile/edit" element = {<EditProfile/>}></Route>
       <Route path = "/assign-manager/:_id" element = {<ProtectedRouteByRole allowedRoles={["admin"]}><AssignManager /></ProtectedRouteByRole>}></Route>
-      <Route path = "/managers" element = {<ProtectedRouteByRole allowedRoles={["admin"]}><ManagerData /></ProtectedRouteByRole>}></Route>
+      <Route path = "/managers" element = {<ProtectedRouteByRole allowedRoles={["admin","superadmin"]}><ManagerData /></ProtectedRouteByRole>}></Route>
       <Route path = "/admin/complaints" element = {<ProtectedRouteByRole allowedRoles={["admin"]}><AdminComplaint /></ProtectedRouteByRole>}></Route>
       <Route path = "/notifications" element = {<Notifications/>}></Route>
       <Route path = "/escalate/:complaintId" element = {<ProtectedRouteByRole allowedRoles={["admin"]}><EscalateComplaint /></ProtectedRouteByRole>}></Route>
+      <Route path = "/manager/complaints" element = {<ProtectedRouteByRole allowedRoles={["manager"]}><ManagerComplaint /></ProtectedRouteByRole>}></Route> 
+      <Route path = "/manager/complaint/:_id" element = {<ProtectedRouteByRole allowedRoles={["manager"]}><ComplaintDetailsManager /></ProtectedRouteByRole>}></Route>
+      <Route path = "superadmin/admins" element = {<ProtectedRouteByRole allowedRoles={["superadmin"]}><AdminData /></ProtectedRouteByRole>}></Route>
+      <Route path = "/superadmin/complaints" element = {<ProtectedRouteByRole allowedRoles={["superadmin"]}><SuperAdminComplaints /></ProtectedRouteByRole>}></Route>
+      <Route path = "/superadmin/complaint/:_id" element = {<ProtectedRouteByRole allowedRoles={["superadmin"]}><SuperAdminComplaintDetails /></ProtectedRouteByRole>}></Route>
+
+
       </Route>
       </Routes>
       </BrowserRouter>
