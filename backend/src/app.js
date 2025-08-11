@@ -26,6 +26,7 @@ const managerComplaintRouter = require("./routes/complaints/managerComplaint");
 const profileRouter = require("./routes/profile");
 const sharedRouter = require("./routes/shared/sharedRoutes");
 const notificationRouter = require("./routes/notifications");
+const superAdminComplaintRouter = require("./routes/complaints/superAdmin");
 app.use("/",authRouter);
 app.use("/",userComplaintRouter);
 app.use("/",adminComplaintRouter);
@@ -33,6 +34,7 @@ app.use("/",managerComplaintRouter);
 app.use("/",profileRouter)
 app.use("/",sharedRouter);
 app.use("/",notificationRouter);
+app.use("/",superAdminComplaintRouter);
 connectDB().then(()=>{
     console.log("connected successfully")
     server.listen(PORT,"0.0.0.0",()=>{
