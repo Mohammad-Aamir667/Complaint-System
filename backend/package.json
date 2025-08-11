@@ -1,7 +1,10 @@
 {
   "scripts": {
     "start": "node src/app.js",
-    "dev": "nodemon src/app.js"
+    "dev": "nodemon src/app.js",
+  "seed:superadmins": "node src/scripts/createSuperAdmins.js"
+
+
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
