@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   BarChart3,
   Bell,
@@ -18,139 +18,43 @@ import {
   Settings,
   Menu,
   X,
-  Users,
-  MoreHorizontal,
-  ArrowUpCircle,
-  Eye,
-  Edit,
-  AlertTriangle,
-  PlayCircle,
-  CheckCircle2,
+ 
 } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-
-// Sample data for manager
-const mockManager = {
-  firstName: "Michael",
-  lastName: "Johnson",
-  emailId: "michael.johnson@company.com",
-  role: "manager",
-  department: "IT",
-  photoUrl: "/placeholder.svg",
-}
-
-const mockTeamMembers = [
-  { id: 1, name: "Sarah Wilson", role: "Senior Developer", email: "sarah.wilson@company.com", complaints: 3 },
-  { id: 2, name: "David Chen", role: "System Administrator", email: "david.chen@company.com", complaints: 1 },
-  { id: 3, name: "Emma Rodriguez", role: "UI/UX Designer", email: "emma.rodriguez@company.com", complaints: 2 },
-  { id: 4, name: "James Thompson", role: "DevOps Engineer", email: "james.thompson@company.com", complaints: 0 },
-]
-
-const mockComplaints = [
-  {
-    id: "CMP-001",
-    title: "Network connectivity issues in Building A",
-    category: "IT",
-    priority: "High",
-    status: "In Progress",
-    employee: "Alice Johnson",
-    assignedDate: "2024-01-15",
-    dueDate: "2024-01-20",
-    description: "Frequent disconnections affecting productivity",
-    escalated: false,
-    timeSpent: "4h 30m",
-  },
-  {
-    id: "CMP-002",
-    title: "Software license renewal required",
-    category: "IT",
-    priority: "Medium",
-    status: "Pending",
-    employee: "Bob Wilson",
-    assignedDate: "2024-01-14",
-    dueDate: "2024-01-25",
-    description: "Adobe Creative Suite licenses expiring soon",
-    escalated: false,
-    timeSpent: "1h 15m",
-  },
-  {
-    id: "CMP-003",
-    title: "Email server performance issues",
-    category: "IT",
-    priority: "Critical",
-    status: "New",
-    employee: "Carol Davis",
-    assignedDate: "2024-01-16",
-    dueDate: "2024-01-18",
-    description: "Email delays and server timeouts reported",
-    escalated: true,
-    timeSpent: "0h 0m",
-  },
-  {
-    id: "CMP-004",
-    title: "VPN access problems for remote workers",
-    category: "IT",
-    priority: "High",
-    status: "In Progress",
-    employee: "David Miller",
-    assignedDate: "2024-01-13",
-    dueDate: "2024-01-19",
-    description: "Multiple users unable to connect to VPN",
-    escalated: false,
-    timeSpent: "6h 45m",
-  },
-  {
-    id: "CMP-005",
-    title: "Database backup verification needed",
-    category: "IT",
-    priority: "Low",
-    status: "Resolved",
-    employee: "Eva Brown",
-    assignedDate: "2024-01-10",
-    dueDate: "2024-01-15",
-    description: "Monthly backup integrity check",
-    escalated: false,
-    timeSpent: "2h 20m",
-  },
-]
+import { useDispatch, useSelector } from "react-redux"
+import { Link, useNavigate } from "react-router-dom"
+import { removeUser } from "@/utils/userSlice"
+import { BASE_URL } from "@/utils/constants"
+import axios from "axios"
+import { addManagerComplaint } from "@/utils/managerComplaintSlice"
+import ManagerComplaint from "./ManagerComplaint"
 
 const menuItems = [
-  { title: "Dashboard", icon: Home, isActive: true },
-  { title: "My Complaints", icon: FileText },
-  { title: "Team Overview", icon: Users },
-  { title: "Analytics", icon: BarChart3 },
-  { title: "Profile", icon: User },
+  { title: "Dashboard", icon: Home, isActive: true ,path: "/manager/dashboard"},
+  { title: "My Complaints", icon: FileText , path: "/manager/complaints"},
+   { title: "Analytics", icon: BarChart3 , path: "/analytics"},
+  { title: "Profile", icon: User ,path: "/profile"},
 ]
 
-const Sidebar = ({ isOpen, onClose }) => (
-  <>
+const Sidebar = ({ isOpen, onClose }) => {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const handleLogout = async () => {
+    try {
+      await axios.post(BASE_URL + "/logout", {}, { withCredentials: true })
+      dispatch(removeUser())
+       
+      navigate("/login")
+    } catch (err) {
+     console.error("Logout error:", err)
+    }
+  }
+ return <>
     {isOpen && <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={onClose} />}
     <div
       className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
@@ -175,16 +79,16 @@ const Sidebar = ({ isOpen, onClose }) => (
           <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Navigation</h4>
           <nav className="space-y-1">
             {menuItems.map((item) => (
-              <a
+              <Link
                 key={item.title}
-                href="#"
+                to={item.path}
                 className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   item.isActive ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
                 <item.icon className="h-4 w-4" />
                 {item.title}
-              </a>
+              </Link>
             ))}
           </nav>
         </div>
@@ -199,160 +103,33 @@ const Sidebar = ({ isOpen, onClose }) => (
             <Settings className="h-4 w-4" />
             Settings
           </a>
-          <a
-            href="#"
-            className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
-          >
-            <LogOut className="h-4 w-4" />
-            Logout
-          </a>
+          <button
+  onClick={handleLogout}
+  className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
+>
+  <LogOut className="h-4 w-4" />
+  Logout
+</button>
         </nav>
       </div>
     </div>
   </>
-)
-
-const getStatusIcon = (status) => {
-  switch (status) {
-    case "Resolved":
-      return <CheckCircle className="h-4 w-4 text-green-600" />
-    case "In Progress":
-      return <Clock className="h-4 w-4 text-blue-600" />
-    case "Pending":
-      return <AlertCircle className="h-4 w-4 text-yellow-600" />
-    case "New":
-      return <XCircle className="h-4 w-4 text-gray-600" />
-    default:
-      return <XCircle className="h-4 w-4 text-gray-600" />
-  }
 }
 
-const getStatusColor = (status) => {
-  switch (status) {
-    case "Resolved":
-      return "bg-green-100 text-green-800"
-    case "In Progress":
-      return "bg-blue-100 text-blue-800"
-    case "Pending":
-      return "bg-yellow-100 text-yellow-800"
-    case "New":
-      return "bg-gray-100 text-gray-800"
-    default:
-      return "bg-gray-100 text-gray-800"
-  }
-}
 
-const getPriorityColor = (priority) => {
-  switch (priority) {
-    case "Critical":
-      return "bg-red-100 text-red-800"
-    case "High":
-      return "bg-orange-100 text-orange-800"
-    case "Medium":
-      return "bg-yellow-100 text-yellow-800"
-    case "Low":
-      return "bg-green-100 text-green-800"
-    default:
-      return "bg-gray-100 text-gray-800"
-  }
-}
 
-const StatusUpdateDialog = ({ complaint, onStatusUpdate }) => {
-  const [newStatus, setNewStatus] = useState(complaint.status)
-  const [notes, setNotes] = useState("")
-
-  const handleStatusUpdate = () => {
-    if (newStatus && newStatus !== complaint.status) {
-      onStatusUpdate(complaint.id, newStatus, notes)
-      setNotes("")
-    }
-  }
-
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Edit className="h-4 w-4 mr-1" />
-          Update
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Update Complaint Status</DialogTitle>
-          <DialogDescription>Update the status of complaint: {complaint.title}</DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="status">New Status</Label>
-            <Select value={newStatus} onValueChange={setNewStatus}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="New">New</SelectItem>
-                <SelectItem value="In Progress">In Progress</SelectItem>
-                <SelectItem value="Pending">Pending</SelectItem>
-                <SelectItem value="Resolved">Resolved</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label htmlFor="notes">Update Notes (Optional)</Label>
-            <Textarea
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Add any notes about this status update..."
-            />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline">Cancel</Button>
-          <Button onClick={handleStatusUpdate} disabled={!newStatus || newStatus === complaint.status}>
-            Update Status
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
-}
 
 const ManagerDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [statusFilter, setStatusFilter] = useState("all")
   const [priorityFilter, setPriorityFilter] = useState("all")
   const [searchTerm, setSearchTerm] = useState("")
-  const [complaints, setComplaints] = useState(mockComplaints)
-
-  const handleStatusUpdate = (complaintId, newStatus, notes) => {
-    setComplaints((prev) =>
-      prev.map((complaint) => (complaint.id === complaintId ? { ...complaint, status: newStatus } : complaint)),
-    )
-  }
-
-  const handleStartWork = (complaintId) => {
-    setComplaints((prev) =>
-      prev.map((complaint) => (complaint.id === complaintId ? { ...complaint, status: "In Progress" } : complaint)),
-    )
-  }
-
-  const handleCompleteWork = (complaintId) => {
-    setComplaints((prev) =>
-      prev.map((complaint) => (complaint.id === complaintId ? { ...complaint, status: "Resolved" } : complaint)),
-    )
-  }
-
-  const filteredComplaints = complaints.filter((complaint) => {
-    const matchesStatus = statusFilter === "all" || complaint.status.toLowerCase() === statusFilter.toLowerCase()
-    const matchesPriority =
-      priorityFilter === "all" || complaint.priority.toLowerCase() === priorityFilter.toLowerCase()
-    const matchesSearch =
-      complaint.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      complaint.employee.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      complaint.id.toLowerCase().includes(searchTerm.toLowerCase())
-
-    return matchesStatus && matchesPriority && matchesSearch
-  })
+  const user = useSelector((store) => store.user);
+  const complaints = useSelector((store) => store.managerComplaints);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+ 
+  
 
   const stats = {
     total: complaints.length,
@@ -362,7 +139,22 @@ const ManagerDashboard = () => {
     resolved: complaints.filter((c) => c.status === "Resolved").length,
     overdue: complaints.filter((c) => new Date(c.dueDate) < new Date() && c.status !== "Resolved").length,
   }
-
+  const fetchComplaints = async () =>{
+    try{
+      const res =  await axios.get (BASE_URL + "/manager/complaints", {withCredentials: true});
+        dispatch(addManagerComplaint(res.data));
+    }
+    catch(err){
+            console.error("Error fetching complaints:", err);
+    }
+  }
+  const handleProfile = () => {
+    navigate("/profile");
+     }
+  useEffect(()=>{
+      fetchComplaints();
+    
+   },[])
   const resolutionRate = Math.round((stats.resolved / stats.total) * 100)
   const workload = stats.total - stats.resolved
 
@@ -393,11 +185,11 @@ const ManagerDashboard = () => {
               <Button variant="outline" size="icon">
                 <Bell className="h-4 w-4" />
               </Button>
-              <Avatar size="sm">
-                <AvatarImage src={mockManager.photoUrl || "/placeholder.svg"} />
+              <Avatar onClick = {handleProfile} size="sm">
+                <AvatarImage src={user?.photoUrl || "/placeholder.svg"} />
                 <AvatarFallback>
-                  {mockManager.firstName[0]}
-                  {mockManager.lastName[0]}
+                  {user?.firstName[0]}
+                  {user?.lastName[0]}
                 </AvatarFallback>
               </Avatar>
             </div>
@@ -409,7 +201,7 @@ const ManagerDashboard = () => {
           {/* Welcome Section */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Welcome back, {mockManager.firstName}!</h1>
+              <h1 className="text-3xl font-bold text-gray-900">Welcome back, {user?.firstName}!</h1>
               <p className="text-gray-600 mt-1">Manage your assigned complaints and track team performance</p>
             </div>
             <Button>
@@ -419,7 +211,7 @@ const ManagerDashboard = () => {
           </div>
 
           {/* Stats Cards */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
@@ -432,17 +224,7 @@ const ManagerDashboard = () => {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">New</p>
-                    <p className="text-2xl font-bold text-gray-900">{stats.new}</p>
-                  </div>
-                  <XCircle className="h-6 w-6 text-gray-400" />
-                </div>
-              </CardContent>
-            </Card>
+          
 
             <Card>
               <CardContent className="p-4">
@@ -480,20 +262,10 @@ const ManagerDashboard = () => {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Overdue</p>
-                    <p className="text-2xl font-bold text-red-600">{stats.overdue}</p>
-                  </div>
-                  <ArrowUpCircle className="h-6 w-6 text-red-400" />
-                </div>
-              </CardContent>
-            </Card>
+         
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2">
             {/* Performance Overview */}
             <Card>
               <CardHeader>
@@ -522,38 +294,6 @@ const ManagerDashboard = () => {
                 </div>
               </CardContent>
             </Card>
-
-            {/* Team Overview */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Team Overview</CardTitle>
-                <CardDescription>Your team members and their complaints</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {mockTeamMembers.slice(0, 3).map((member) => (
-                    <div key={member.id} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Avatar className="h-6 w-6">
-                          <AvatarFallback className="text-xs">
-                            {member.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium text-sm">{member.name}</p>
-                          <p className="text-xs text-gray-500">{member.role}</p>
-                        </div>
-                      </div>
-                      <Badge variant="outline">{member.complaints} complaints</Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Recent Activity */}
             <Card>
               <CardHeader>
@@ -588,142 +328,8 @@ const ManagerDashboard = () => {
             </Card>
           </div>
 
-          {/* Complaints Management */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>My Assigned Complaints</CardTitle>
-                  <CardDescription>Manage and track your assigned complaints</CardDescription>
-                </div>
-                <div className="flex gap-2">
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-32">
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="new">New</SelectItem>
-                      <SelectItem value="in progress">In Progress</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="resolved">Resolved</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-                    <SelectTrigger className="w-32">
-                      <SelectValue placeholder="Priority" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Priority</SelectItem>
-                      <SelectItem value="critical">Critical</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="low">Low</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>ID</TableHead>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Employee</TableHead>
-                    <TableHead>Priority</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Due Date</TableHead>
-                    <TableHead>Time Spent</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredComplaints.map((complaint) => (
-                    <TableRow key={complaint.id}>
-                      <TableCell className="font-medium">{complaint.id}</TableCell>
-                      <TableCell>
-                        <div className="max-w-48">
-                          <p className="font-medium truncate">{complaint.title}</p>
-                          {complaint.escalated && (
-                            <Badge variant="destructive" className="mt-1">
-                              <AlertTriangle className="h-3 w-3 mr-1" />
-                              Escalated
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>{complaint.employee}</TableCell>
-                      <TableCell>
-                        <Badge className={getPriorityColor(complaint.priority)}>{complaint.priority}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {getStatusIcon(complaint.status)}
-                          <Badge className={getStatusColor(complaint.status)}>{complaint.status}</Badge>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span
-                          className={
-                            new Date(complaint.dueDate) < new Date() && complaint.status !== "Resolved"
-                              ? "text-red-600 font-medium"
-                              : ""
-                          }
-                        >
-                          {complaint.dueDate}
-                        </span>
-                      </TableCell>
-                      <TableCell>{complaint.timeSpent}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Button variant="ghost" size="sm">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          {complaint.status === "New" && (
-                            <Button variant="outline" size="sm" onClick={() => handleStartWork(complaint.id)}>
-                              <PlayCircle className="h-4 w-4 mr-1" />
-                              Start
-                            </Button>
-                          )}
-                          {complaint.status === "In Progress" && (
-                            <Button variant="outline" size="sm" onClick={() => handleCompleteWork(complaint.id)}>
-                              <CheckCircle2 className="h-4 w-4 mr-1" />
-                              Complete
-                            </Button>
-                          )}
-                          <StatusUpdateDialog complaint={complaint} onStatusUpdate={handleStatusUpdate} />
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem>
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Details
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Add Notes
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem>
-                                <ArrowUpCircle className="mr-2 h-4 w-4" />
-                                Request Escalation
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+          
+          <ManagerComplaint/>
         </main>
       </div>
     </div>
