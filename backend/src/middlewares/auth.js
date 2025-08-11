@@ -26,6 +26,12 @@ const isAdmin = (req, res, next) => {
     }
     next();
 };
+const isSuperAdmin = (req, res, next) => {
+    if (req.user.role !== "superadmin") {
+        return res.status(403).json({ message: "Access denied. Super Admins only." });
+    }
+    next();
+};
 const isManager = (req, res, next) => {
     if (req.user.role !== "manager") {
         return res.status(403).json({ message: "Access denied. Manager only." });
@@ -33,5 +39,5 @@ const isManager = (req, res, next) => {
     next();
 };
 module.exports = {
-    userAuth,isAdmin,isManager
+    userAuth,isAdmin,isManager,isSuperAdmin
 }
