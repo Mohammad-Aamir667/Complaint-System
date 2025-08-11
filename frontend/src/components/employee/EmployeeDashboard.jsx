@@ -154,6 +154,7 @@ const EmployeeDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const dispatch = useDispatch();
   const userComplaints = useSelector((store) => store.userComplaints);
+  console.log(userComplaints)
    const user = useSelector((store) => store?.user);
       const navigate = useNavigate();
    const formattedDate = (createdAt)=>{
@@ -186,7 +187,7 @@ const EmployeeDashboard = () => {
   },[])
   const totalComplaints = userComplaints?.length;
   const resolvedComplaints = userComplaints?.filter((c) => c.status === "resolved")?.length
-  const pendingComplaints = userComplaints?.filter((c) => c.status !== "resolved").length
+  const pendingComplaints = userComplaints?.filter((c) => c.status === "pending")?.length
   const resolutionRate = Math.round((resolvedComplaints / totalComplaints) * 100)
 
   return user && (
