@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
-import { Eye, EyeOff, Lock, Mail, User, AlertCircle, CheckCircle2 } from "lucide-react"
+import { Eye, EyeOff, Lock, Mail, User, AlertCircle, CheckCircle2, KeyRound } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -17,21 +17,28 @@ import { addUser } from "../utils/userSlice"
 import { BASE_URL } from "../utils/constants"
 
 const Login = () => {
-  const [emailId, setEmailId] = useState("arhan123@gmail.com")
+  const [emailId, setEmailId] = useState("")
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
+  const [department, setDepartment] = useState("")
+  const [role, setRole] = useState("")
+  const [inviteCode, setInviteCode] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [isLoginForm, setIsLoginForm] = useState(true)
-  const [password, setPassword] = useState("Arhan@123")
+  const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const [passwordMatchError, setPasswordMatchError] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [signupSuccess, setSignupSuccess] = useState(false)
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const user = useSelector((store) => store.user)
+
+  const roles = ["Employee", "Manager", "Admin"]
+  const departments = ["IT", "HR", "Finance", "Facilities"]
 
   useEffect(() => {
     if (user?.role === "employee") {
@@ -46,7 +53,7 @@ const Login = () => {
   }, [user, navigate])
 
   useEffect(() => {
-    if (!password.startsWith(confirmPassword)) {
+    if (confirmPassword && password !== confirmPassword) {
       setPasswordMatchError(true)
     } else {
       setPasswordMatchError(false)
@@ -55,31 +62,25 @@ const Login = () => {
 
   const getErrorMessage = (err) => {
     if (err?.response?.status === 403) {
-      return err?.response?.data?.message || "Your account is not active. Please contact admin for assistance."
+      return err?.response?.data?.message || "Your account is not active. Please contact admin."
     } else if (err?.response?.status === 401) {
-      return "Invalid email or password. Please check your credentials and try again."
+      return "Invalid email or password."
     } else if (err?.response?.status === 400) {
-      return err?.response?.data || "Invalid request. Please check your input and try again."
+      return err?.response?.data || "Invalid request."
     } else if (err?.response?.status === 404) {
-      return "Account not found. Please check your email address or sign up for a new account."
+      return "Account not found."
     } else if (err?.response?.status === 429) {
-      return "Too many login attempts. Please wait a few minutes before trying again."
+      return "Too many attempts. Please wait."
     } else if (err?.response?.status >= 500) {
-      return "Server error. Please try again later or contact support if the problem persists."
+      return "Server error. Please try again later."
     } else {
-      return err?.response?.data || "An unexpected error occurred. Please try again."
+      return err?.response?.data || "An unexpected error occurred."
     }
   }
 
   const handleLogin = async () => {
-    if (!emailId && !password) {
+    if (!emailId || !password) {
       setError("Email and password are required")
-      return
-    } else if (!emailId) {
-      setError("Email is required")
-      return
-    } else if (!password) {
-      setError("Password is required")
       return
     }
 
@@ -89,18 +90,13 @@ const Login = () => {
     try {
       const res = await axios.post(
         BASE_URL + "/login",
-        {
-          emailId,
-          password,
-        },
-        { withCredentials: true },
+        { emailId, password },
+        { withCredentials: true }
       )
 
       dispatch(addUser(res.data))
       if (res?.data) {
         navigate(`/${res.data?.role}/dashboard`)
-      } else {
-        navigate("/")
       }
     } catch (err) {
       setError(getErrorMessage(err))
@@ -110,8 +106,8 @@ const Login = () => {
   }
 
   const handleSignUp = async () => {
-    if (!firstName || !lastName || !emailId || !password || !confirmPassword) {
-      setError("All fields are required")
+    if (!firstName || !emailId || !password || !confirmPassword || !inviteCode || !department || !role) {
+      setError("All fields except Last Name are required")
       return
     }
 
@@ -123,21 +119,23 @@ const Login = () => {
     setLoading(true)
 
     try {
-      const res = await axios.post(
+      await axios.post(
         BASE_URL + "/signup",
         {
           firstName: firstName.trim(),
-          lastName,
+          lastName: lastName.trim(),
           emailId: emailId.trim(),
           password,
+          inviteCode: inviteCode.trim(),
+          department: department.trim(),
+          role: role.trim()
         },
-        { withCredentials: true },
+        { withCredentials: true }
       )
 
-      dispatch(addUser(res.data))
-      navigate("/profile")
+      setSignupSuccess(true)
+      setIsLoginForm(true)
     } catch (err) {
-      console.log(err)
       setError(getErrorMessage(err))
     } finally {
       setLoading(false)
@@ -163,7 +161,9 @@ const Login = () => {
                 <Lock className="h-6 w-6" />
               </div>
             </div>
-            <CardTitle className="text-2xl font-bold">{isLoginForm ? "Welcome back" : "Create account"}</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              {isLoginForm ? "Welcome back" : "Create account"}
+            </CardTitle>
             <CardDescription>
               {isLoginForm
                 ? "Enter your credentials to access your account"
@@ -172,6 +172,15 @@ const Login = () => {
           </CardHeader>
 
           <CardContent>
+            {signupSuccess && (
+              <Alert variant="success" className="mb-4">
+                <CheckCircle2 className="h-4 w-4" />
+                <AlertDescription>
+                  Your registration request has been submitted and will be reviewed soon.
+                </AlertDescription>
+              </Alert>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-4">
               {!isLoginForm && (
                 <>
@@ -187,7 +196,6 @@ const Login = () => {
                           onChange={(e) => setFirstName(e.target.value)}
                           placeholder="John"
                           className="pl-10"
-                          required={!isLoginForm}
                         />
                       </div>
                     </div>
@@ -202,9 +210,63 @@ const Login = () => {
                           onChange={(e) => setLastName(e.target.value)}
                           placeholder="Doe"
                           className="pl-10"
-                          required={!isLoginForm}
                         />
                       </div>
+                    </div>
+                  </div>
+
+                  {/* Role Dropdown */}
+                  <div className="space-y-2">
+                    <Label htmlFor="role">Role</Label>
+                    <select
+                      id="role"
+                      name="role"
+                      value={role}
+                      onChange={(e) => setRole(e.target.value)}
+                      className="w-full p-2 rounded bg-gray-50 text-gray-900 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    >
+                      <option value="">Select Role</option>
+                      {roles.map((roleItem) => (
+                        <option key={roleItem} value={roleItem.toLowerCase()}>
+                          {roleItem}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Department Dropdown */}
+                  <div className="space-y-2">
+                    <Label htmlFor="department">Department</Label>
+                    <select
+                      id="department"
+                      name="department"
+                      value={department}
+                      onChange={(e) => setDepartment(e.target.value)}
+                      className="w-full p-2 rounded bg-gray-50 text-gray-900 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    >
+                      <option value="">Select Department</option>
+                      {departments.map((dept) => (
+                        <option key={dept} value={dept}>
+                          {dept}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="inviteCode">Invite Code</Label>
+                    <div className="relative">
+                      <KeyRound className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="inviteCode"
+                        type="text"
+                        value={inviteCode}
+                        onChange={(e) => setInviteCode(e.target.value)}
+                        placeholder="Enter your invite code"
+                        className="pl-10"
+                      />
                     </div>
                   </div>
                 </>
@@ -246,11 +308,7 @@ const Login = () => {
                     className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-gray-400" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-gray-400" />
-                    )}
+                    {showPassword ? <EyeOff className="h-4 w-4 text-gray-400" /> : <Eye className="h-4 w-4 text-gray-400" />}
                   </Button>
                 </div>
               </div>
@@ -259,7 +317,7 @@ const Login = () => {
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword">Confirm Password</Label>
                   <div className="relative">
-<Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
                       id="confirmPassword"
                       type={showConfirmPassword ? "text" : "password"}
@@ -267,7 +325,6 @@ const Login = () => {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Confirm your password"
                       className="pl-10 pr-10"
-                      required={!isLoginForm}
                     />
                     <Button
                       type="button"
@@ -276,11 +333,7 @@ const Login = () => {
                       className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     >
-                      {showConfirmPassword ? (
-                        <EyeOff className="h-4 w-4 text-gray-400" />
-                      ) : (
-                        <Eye className="h-4 w-4 text-gray-400" />
-                      )}
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4 text-gray-400" /> : <Eye className="h-4 w-4 text-gray-400" />}
                     </Button>
                   </div>
                   {passwordMatchError && confirmPassword && (
@@ -346,20 +399,6 @@ const Login = () => {
             </form>
           </CardContent>
         </Card>
-
-        {/* Additional Information */}
-        <div className="mt-6 text-center text-sm text-gray-600">
-          <p>
-            By signing in, you agree to our{" "}
-            <Button variant="link" className="p-0 h-auto text-sm text-blue-600">
-              Terms of Service
-            </Button>{" "}
-            and{" "}
-            <Button variant="link" className="p-0 h-auto text-sm text-blue-600">
-              Privacy Policy
-            </Button>
-          </p>
-        </div>
       </div>
     </div>
   )
