@@ -76,7 +76,7 @@ managerComplaintRouter.get("/manager/complaints",userAuth,isManager,async (req,r
         const user = req.user;
         const allComplaints = await Complaint.find({assignedManager: user._id}).populate('createdBy', 'firstName lastName emailId role department').populate('assignedAdmin', 'firstName lastName emailId department').exec();
         if (!allComplaints || allComplaints.length === 0) {
-            return res.status(404).json({ message: "No complaints found for this admin" });
+            return res.status(404).json({ message: "No complaints found for this manager" });
         }
            res.status(200).json(allComplaints);
     }
@@ -84,4 +84,5 @@ managerComplaintRouter.get("/manager/complaints",userAuth,isManager,async (req,r
            res.status(500).json({ message: "Error occurred", error: err.message });
     }
 });
+
 module.exports = managerComplaintRouter;
