@@ -40,7 +40,6 @@ const EmployeeData = () => {
   const [selectedEmployee, setSelectedEmployee] = useState(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [actionLoading, setActionLoading] = useState(false)
-  console.log("Employees from Redux:", employees)
 
   const fetchEmployees = async () => {
     try {
@@ -112,6 +111,20 @@ const EmployeeData = () => {
 
   const getPerformanceRate = (resolved, total) => {
     return total > 0 ? Math.round((resolved / total) * 100) : 0
+  }
+   const getStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case "active":
+        return "bg-green-100 text-green-800"
+      case "inactive":
+        return "bg-gray-100 text-gray-800"
+      case "suspended":
+        return "bg-yellow-100 text-yellow-800"
+      case "terminated":
+        return "bg-red-100 text-red-800"
+      default:
+        return "bg-gray-100 text-gray-800"
+    }
   }
 
   if (loading && !employees?.length) {
@@ -245,6 +258,7 @@ const EmployeeData = () => {
             {filteredEmployees.map((employee) => {
               const resolutionRate = getPerformanceRate(employee.resolved || 0, employee.totalComplaints || 0)
               const performanceColor = getPerformanceColor(employee.resolved || 0, employee.totalComplaints || 0)
+              const statusColor = getStatusColor(manager.status)
 
               return (
                 <Card key={employee._id} className="shadow-lg hover:shadow-xl transition-shadow">
@@ -263,6 +277,8 @@ const EmployeeData = () => {
                     </div>
                     <CardTitle className="text-lg">
                       {employee.firstName} {employee.lastName}
+                   <Badge className={statusColor}>{employee.status || "Unknown"}</Badge>
+
                     </CardTitle>
                     <CardDescription className="flex items-center justify-center gap-1">
                       <Building className="h-4 w-4" />
