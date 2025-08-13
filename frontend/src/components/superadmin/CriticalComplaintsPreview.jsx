@@ -28,8 +28,7 @@ const CriticalComplaintsPreview = () => {
   const complaints = useSelector((store) => store.superAdminComplaints)
     const dispatch = useDispatch()
     const navigate = useNavigate()
-  const criticalComplaints = complaints
-    .filter((c) => c.critical === true)
+  const criticalComplaints = complaints?.filter((c) => c.critical === true)
     .slice(0, 3)
     const fetchComplaints = async () =>{
         try{
@@ -40,11 +39,9 @@ const CriticalComplaintsPreview = () => {
                 console.error("Error fetching complaints:", err);
         }
       }
-      const handleComplaint = (complaint)=>{
-        navigate(`/superadmin/complaint/${complaint._id}`, {state: {complaint}})
-       }
+    
        useEffect(()=>{
-        if(complaints.length === 0)
+        if(complaints?.length === 0)
               fetchComplaints();
            },[])
   return (
@@ -63,9 +60,9 @@ const CriticalComplaintsPreview = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {criticalComplaints.length > 0 ? (
-              criticalComplaints.map((complaint) => (
-                <TableRow key={complaint._id}>
+            {criticalComplaints?.length > 0 ? (
+              criticalComplaints?.map((complaint) => (
+                <TableRow key={complaint?._id}>
                   <TableCell>{complaint?.complaintId}</TableCell>
                   <TableCell className="flex items-center gap-2">
                     {complaint.title}
