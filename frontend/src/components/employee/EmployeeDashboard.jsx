@@ -189,8 +189,10 @@ const EmployeeDashboard = () => {
   const resolvedComplaints = userComplaints?.filter((c) => c.status === "resolved")?.length
   const pendingComplaints = userComplaints?.filter((c) => c.status === "pending")?.length
   const resolutionRate = Math.round((resolvedComplaints / totalComplaints) * 100)
-
-  return user && (
+  if(user.status !== "active"){
+    navigate("/login")
+  }
+  return user?.status === "active" && (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
@@ -336,7 +338,7 @@ const EmployeeDashboard = () => {
                       </div>
                       <div className="flex justify-between">
                       <span className="text-gray-600">Gender:</span>
-                      <span className="font-medium">{user?.gender.charAt(0).toUpperCase() + user?.gender.slice(1).toLowerCase()}</span>
+                      <span className="font-medium">{user?.gender?.charAt(0).toUpperCase() + user?.gender?.slice(1).toLowerCase()}</span>
                     </div>
                   
                   </div>
