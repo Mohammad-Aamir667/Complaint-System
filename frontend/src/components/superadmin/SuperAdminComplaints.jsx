@@ -103,7 +103,7 @@ const SuperAdminComplaints = () => {
         }
       }
       
-      const filteredComplaints = complaints.filter((complaint) => {
+      const filteredComplaints = complaints?.filter((complaint) => {
         const matchesStatus = statusFilter === "all" || complaint.status.toLowerCase() === statusFilter.toLowerCase()
         const matchesPriority =
           priorityFilter === "all" || complaint.priority.toLowerCase() === priorityFilter.toLowerCase()
@@ -118,7 +118,7 @@ const SuperAdminComplaints = () => {
         navigate(`/superadmin/complaint/${complaint._id}`, {state: {complaint}})
        }
      useEffect(()=>{
-        if(complaints.length === 0)
+        if(complaints?.length === 0)
               fetchComplaints();
            },[])
      
@@ -175,7 +175,7 @@ const SuperAdminComplaints = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredComplaints.map((complaint) => (
+                  {filteredComplaints?.map((complaint) => (
                     <TableRow key={complaint._id}>
                       <TableCell className="font-medium">{complaint?.complaintId}</TableCell>
                       <TableCell>
