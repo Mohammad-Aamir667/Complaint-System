@@ -7,6 +7,7 @@ import adminDataReducer from "./adminDataSlice";
 import notificationReducer from "./notificationSlice"
 import managerComplaintReducer from "./managerComplaintSlice";
 import superAdminComplaintReducer from "./superAdminComplaintsSlice";
+import employeeDataReducer from "./employeeDataSlice";
 const appStore = configureStore({
   reducer:{
         user:userReducer,
@@ -16,7 +17,8 @@ const appStore = configureStore({
         notifications:notificationReducer,
         managerComplaints:managerComplaintReducer,
         adminData:adminDataReducer,
-        superAdminComplaints:superAdminComplaintReducer
+        superAdminComplaints:superAdminComplaintReducer,
+        employeeData:employeeDataReducer
 
   },
 });
