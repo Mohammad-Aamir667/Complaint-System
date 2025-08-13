@@ -28,9 +28,13 @@ import { addNotifications } from "@/utils/notificationSlice";
 const menuItems = [
   { title: "Dashboard", icon: Home, path: "/admin/dashboard" },
   { title: "All Complaints", icon: FileText, path: "/admin/complaints" },
-  { title: "Managers", icon: Users, path: "/managers" },
-  { title: "Analytics", icon: BarChart3, path: "/analytics" },
+  { title: "Managers", icon: Users, path: "/managers-stats" },
+  { title: "Employees", icon: Users, path: "/employees-stats" },
+  { title: "Generate Code", icon: BarChart3, path: "/invite/code-generate" },
   { title: "Profile", icon: User, path: "/profile" },
+  
+
+
 ];
 
 const Sidebar = ({ isOpen, onClose }) => {
@@ -201,7 +205,9 @@ const AdminDashboard = () => {
   
 
   const resolutionRate = Math.round((stats.resolved / stats.total) * 100)
-
+    if(user.status !== "active"){
+    navigate("/login")
+  }
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
