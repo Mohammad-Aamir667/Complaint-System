@@ -136,25 +136,6 @@ superAdminComplaintRouter.get("/complaints/escalated-complaints",userAuth,isSupe
         if(escalatedComplaints.length === 0) return res.status(404).json({message:"No escalated complaints found"});
         return res.status(200).json(escalatedComplaints);
 });
-superAdminComplaintRouter.get("superadmin/complaints", userAuth, isSuperAdmin, async (req, res) => {
-    try {
-        const user = req.user;
-        const complaints = await Complaint.find({ category: user.department })
-            .populate('createdBy', 'firstName lastName emailId role department')
-            .populate('assignedAdmin', 'firstName lastName emailId department')
-            .populate('assignedManager', 'firstName lastName emailId department')
-            .exec();
-        
-        if (complaints.length === 0) {
-            return res.status(404).json({ message: "No complaints found" });
-        }
-        
-        return res.status(200).json(complaints);
-    } catch (error) {
-        console.error("Error fetching complaints:", error);
-        return res.status(500).json({ message: "Internal server error" });
-    }
-  });
 superAdminComplaintRouter.get("/admins/complaint-stats", userAuth,isSuperAdmin, async (req, res) => {
     try {
         const admins = await User.aggregate([
@@ -174,6 +155,7 @@ superAdminComplaintRouter.get("/admins/complaint-stats", userAuth,isSuperAdmin, 
               emailId: 1,
               department: 1,
               photoUrl:1,
+              status: 1,
               totalComplaints: { $size: "$complaints" },
               resolved: {
                 $size: {
@@ -211,5 +193,59 @@ superAdminComplaintRouter.get("/admins/complaint-stats", userAuth,isSuperAdmin, 
         res.status(500).json({ error: err.message });
       }
 });
+superAdminComplaintRouter.put("/admins/:adminId/status", userAuth, isSuperAdmin, async (req, res) => {
+    try {
+        const user = req.user;
+        const status = req.body.status;
+        if(!status || !['active', 'inactive', 'suspended', 'terminated'].includes(status)) return res.status(400).json({ message: "Invalid status" });
+        const id = req.params.adminId;
+        const admin = await User.findOne({_id:id,department:user.department,role:"admin"});
+        if(admin.status === status) return res.status(400).json({ message: "Admin already has this status" });
+        admin.status = status;
+        await admin.save();
+        const audit = new AuditLog({
+            action: 'Status Update',
+            changedBy: user._id,
+              targetUser: manager._id,
+            previousUserStatus: admin.status,
+            newUserStatus: status,
+        });
+
+        await audit.save();
+         await createNotification(admin._id, `Your status has been updated to ${status}`);
+        res.status(200).json({ message: "Admin status updated successfully", admin });
+        
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" });
+    }
+  });
+superAdminComplaintRouter.put("/managers/:managerId/status", userAuth, isSuperAdmin, async (req, res) => {
+    try {
+        const user = req.user;
+        const status = req.body.status;
+        if(!status || !['active', 'inactive', 'suspended', 'terminated'].includes(status)) return res.status(400).json({ message: "Invalid status" });
+        const id = req.params.managerId;
+        const manager = await User.findOne({_id:id,department:user.department,role:"manager"});
+        if(manager.status === status) return res.status(400).json({ message: "Manager already has this status" });
+        manager.status = status;
+        await manager.save();
+        const audit = new AuditLog({
+            action: 'Status Update',
+            changedBy: user._id,
+            targetUser: manager._id,
+            previousUserStatus: manager.status,
+            newUserStatus: status,
+        });
+        await audit.save();
+         await createNotification(manager._id, `Your status has been updated to ${status}`);
+     
+        
+        res.status(200).json({ message: "Manager status updated successfully", manager });
+        
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" });
+    }
+  });  
+
 
 module.exports = superAdminComplaintRouter;
