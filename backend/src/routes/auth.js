@@ -7,11 +7,17 @@ const authRouter = express.Router();
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const { userAuth } = require("../middlewares/auth");
+require("dotenv").config();
+const InviteCode = require("../models/inviteCode");
 authRouter.post("/signup", async (req, res)=>{
     try {
        validateSignUpData(req); 
       
-       const {firstName,lastName,emailId,password,role,department} = req.body;
+       const {firstName,lastName,emailId,password,role,department, inviteCode } = req.body;
+        const codeDoc = await InviteCode.findOne({ emailId:emailId,code: inviteCode, used: false });
+       if (!codeDoc) {
+      return res.status(400).json({ message: "Invalid or already used invite code" });
+    }
        const existingUser = await User.findOne({ emailId });
        if (existingUser) {
          return res.status(400).json({ message: "Email is already registered" });
@@ -31,6 +37,9 @@ authRouter.post("/signup", async (req, res)=>{
            role,          
            department,
        });
+       codeDoc.used = true;
+       codeDoc.usedBy = user._id;
+      await codeDoc.save();
        await user.save();
        const token = await user.getJWT();
        const userData = user.toObject();
@@ -108,4 +117,118 @@ authRouter.post("/logout",async (req,res)=>{
      });
      res.send("logout successfully");
 });
+
+authRouter.post("/forget-password", async (req, res) => {
+  try {
+    const { emailId } = req.body;
+      if(!emailId || !validator.isEmail(emailId)) {
+        return res.status(400).json({ message: "Valid emailId is required" })
+      };
+    const user = await User.findOne({ emailId });
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    const otp = crypto.randomInt(100000, 999999);
+    const otpExpireTime = 10 * 60 * 1000;
+    user.forgetPasswordOtp = otp;
+    user.forgetPasswordOtpExpires = Date.now() + otpExpireTime;
+    await user.save();
+
+    // Configure transporter
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: "aamireverlasting786@gmail.com",
+        pass: process.env.GMAIL_PASS_KEY,
+      },
+    });
+
+    // Email HTML Template
+    const htmlTemplate = `
+      <div style="font-family: Arial, sans-serif; background-color: #f7f7f7; padding: 30px;">
+        <div style="max-width: 500px; margin: auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+          <div style="background-color: #4f46e5; color: white; padding: 15px 20px; font-size: 20px; font-weight: bold;">
+            Password Reset Request
+          </div>
+          <div style="padding: 20px; color: #333;">
+            <p>Hi ${user.firstName || "User"},</p>
+            <p>We received a request to reset your password. Use the OTP below to reset it:</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <span style="display: inline-block; font-size: 28px; font-weight: bold; letter-spacing: 4px; padding: 12px 20px; border: 2px dashed #4f46e5; border-radius: 6px; background: #f3f4f6; color: #4f46e5;">
+                ${otp}
+              </span>
+            </div>
+            <p>This OTP is valid for <strong>10 minutes</strong>. If you did not request this, you can safely ignore this email.</p>
+            <p style="margin-top: 20px;">Best regards,<br><strong>GrievincePro Team</strong></p>
+          </div>
+          <div style="background: #f3f4f6; color: #666; padding: 10px; font-size: 12px; text-align: center;">
+            &copy; ${new Date().getFullYear()} GrievincePro. All rights reserved.
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Send Email
+    await transporter.sendMail({
+      to: emailId,
+      subject: "Password Reset OTP - GrievincePro",
+      html: htmlTemplate,
+    });
+
+    return res.json({
+      message: "OTP sent to your email",
+    });
+
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+authRouter.post("/reset-password",async(req,res)=>{
+       try{ 
+        const {emailId,otp,newPassword} = req.body;
+           if(!emailId || !otp || !newPassword){
+            return res.status(400).json({message:"emailId,opt,newPassword are required"})};
+
+
+
+
+
+         const user = await User.findOne({emailId});
+         if(!user){
+          return res.status(400).json({
+            message:'user not found'});
+         }
+          if(user.forgetPasswordOtp !== parseInt(otp)){
+                return res.status(400).json({
+                  message:"invalid OTP"
+                 })            
+          }
+          if(Date.now()>user.forgetPasswordOtpExpires){
+           return res.status(400).json({
+              message:"OTP expired"
+            })
+       }
+       if(!validator.isStrongPassword(newPassword)){
+      return res.status(400).json({
+               message:"enter a strong password!"
+        })
+       }
+       const newPasswordHash = await bcrypt.hash(newPassword,10);
+       user.password = newPasswordHash;
+       user.forgetPasswordOtp = null;
+       user.forgetPasswordOtpExpires = null;
+       await user.save();
+     return  res.json({
+        message:"password reset successfully"
+       })
+}
+catch(err){
+  res.status(400).json({ 
+    message:"something went wrong " + err.message,
+  }
+  )
+}
+})
 module.exports = authRouter;
