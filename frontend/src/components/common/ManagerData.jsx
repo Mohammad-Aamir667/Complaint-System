@@ -25,17 +25,22 @@ import { Progress } from "@/components/ui/progress"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 
 import { BASE_URL } from "@/utils/constants"
 import { addManagerData } from "@/utils/managerDataSlice"
 
 const ManagerData = () => {
   const managers = useSelector((store) => store.managerData)
+  const user = useSelector((store) => store.user)
   const dispatch = useDispatch()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [searchTerm, setSearchTerm] = useState("")
   const [departmentFilter, setDepartmentFilter] = useState("all")
+  const [selectedManager, setSelectedManager] = useState(null)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [actionLoading, setActionLoading] = useState(false)
   console.log("Managers from Redux:", managers)
 
   const fetchManagers = async () => {
@@ -52,14 +57,34 @@ const ManagerData = () => {
       setLoading(false)
     }
   }
+    const handleOpenModal = (manager) => {
+    setSelectedManager(manager)
+    setModalOpen(true)
+  }
+
+  const handleAction = async (status) => {
+    if (!selectedManager) return
+    try {
+      setActionLoading(true)
+      await axios.put(
+        `${BASE_URL}/managers/${selectedManager._id}/status`,
+        { status },
+        { withCredentials: true }
+      )
+      await fetchManagers();
+      setModalOpen(false)
+    } catch (err) {
+      console.error("Failed to update status", err)
+    } finally {
+      setActionLoading(false)
+    }
+  }
 
   useEffect(() => {
     if(managers?.length === 0)
     fetchManagers()
   }, [])
 
-  // Get unique departments for filter
-  const departments = [...new Set(managers?.map((manager) => manager.department).filter(Boolean))]
 
   // Filter managers based on search and department
   const filteredManagers = managers?.filter((manager) => {
@@ -166,6 +191,7 @@ const ManagerData = () => {
                   <p className="text-sm font-medium text-gray-600">Resolved</p>
                   <p className="text-2xl font-bold text-green-600">{totalResolved}</p>
                 </div>
+
                 <CheckCircle className="h-6 w-6 text-green-400" />
               </div>
             </CardContent>
@@ -293,7 +319,9 @@ const ManagerData = () => {
                         </div>
                       </div>
                     </div>
-
+                    {user.role === "superadmin" && <Button className="w-full mt-4" onClick={() => handleOpenModal(manager)}>
+                      Action
+                    </Button>}
                   </CardContent>
                 </Card>
               )
@@ -322,7 +350,27 @@ const ManagerData = () => {
               )}
             </CardContent>
           </Card>
+          
         )}
+         <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Manage Manager Status</DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-gray-600 mb-4">
+              Choose an action for <strong>{selectedManager?.firstName} {selectedManager?.lastName}</strong>.
+            </p>
+            <div className="flex flex-col gap-2">
+              <Button onClick={() => handleAction("active")} disabled={actionLoading || selectedManager?.status === "active"}>Activate</Button>
+              <Button onClick={() => handleAction("inactive")} disabled={actionLoading || selectedManager?.status === "inactive"} variant="secondary">Deactivate</Button>
+              <Button onClick={() => handleAction("suspended")} disabled={actionLoading || selectedManager?.status === "suspended"} variant="destructive">Suspend</Button>
+              <Button onClick={() => handleAction("terminated")} disabled={actionLoading || selectedManager?.status === "terminated"} variant="destructive">Terminate</Button>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   )
