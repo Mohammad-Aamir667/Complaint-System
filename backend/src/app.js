@@ -9,8 +9,7 @@ const cors = require("cors");
 app.use(express.json());
 app.use(cookieParser());
 const allowedOrigins = [
-  "https://complaint-system-sable.vercel.app/",
-];
+"https://complaint-system-fyyeej0sz-mohammad-aamirs-projects-6fa1bba5.vercel.app/"];
 app.use(cors({
   origin: allowedOrigins,
   credentials: true,
