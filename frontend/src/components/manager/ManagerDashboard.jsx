@@ -18,6 +18,7 @@ import {
   Settings,
   Menu,
   X,
+  Users,
  
 } from "lucide-react"
 
@@ -36,9 +37,10 @@ import ManagerComplaint from "./ManagerComplaint"
 
 const menuItems = [
   { title: "Dashboard", icon: Home, isActive: true ,path: "/manager/dashboard"},
-  { title: "My Complaints", icon: FileText , path: "/manager/complaints"},
-   { title: "Analytics", icon: BarChart3 , path: "/analytics"},
   { title: "Profile", icon: User ,path: "/profile"},
+  { title: "My Complaints", icon: FileText , path: "/manager/complaints"}, 
+  { title: "Employees", icon: Users, path: "/employees-stats" },
+  { title: "Analytics", icon: BarChart3 , path: "/analytics"},
 ]
 
 const Sidebar = ({ isOpen, onClose }) => {
@@ -157,7 +159,9 @@ const ManagerDashboard = () => {
    },[])
   const resolutionRate = Math.round((stats.resolved / stats.total) * 100)
   const workload = stats.total - stats.resolved
-
+   if(user.status !== "active"){
+    navigate("/login")
+  }
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
