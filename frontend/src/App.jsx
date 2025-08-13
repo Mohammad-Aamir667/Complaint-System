@@ -22,7 +22,10 @@ import ManagerComplaint from "./components/manager/ManagerComplaint"
 import AdminData from "./components/superadmin/AdminData"
 import SuperAdminComplaints from "./components/superadmin/SuperAdminComplaints"
 import SuperAdminComplaintDetails from "./components/superadmin/SuperAdminComplaintDetails"
-
+import EmployeeData from "./components/common/EmployeeData"
+import ResetPassword from "./components/common/ResetPassword"
+import ForgetPassword from "./components/common/ForgetPasssword"
+import InviteCodeGenerator from "./components/common/InviteCodeGenerator"
 function App() {
   return (
     <>
@@ -39,16 +42,19 @@ function App() {
       <Route path = "/profile" element = {<Profile/>}></Route>
       <Route path = "/profile/edit" element = {<EditProfile/>}></Route>
       <Route path = "/assign-manager/:_id" element = {<ProtectedRouteByRole allowedRoles={["admin"]}><AssignManager /></ProtectedRouteByRole>}></Route>
-      <Route path = "/managers" element = {<ProtectedRouteByRole allowedRoles={["admin","superadmin"]}><ManagerData /></ProtectedRouteByRole>}></Route>
+      <Route path = "/managers-stats" element = {<ProtectedRouteByRole allowedRoles={["admin","superadmin"]}><ManagerData /></ProtectedRouteByRole>}></Route>
       <Route path = "/admin/complaints" element = {<ProtectedRouteByRole allowedRoles={["admin"]}><AdminComplaint /></ProtectedRouteByRole>}></Route>
       <Route path = "/notifications" element = {<Notifications/>}></Route>
       <Route path = "/escalate/:complaintId" element = {<ProtectedRouteByRole allowedRoles={["admin"]}><EscalateComplaint /></ProtectedRouteByRole>}></Route>
       <Route path = "/manager/complaints" element = {<ProtectedRouteByRole allowedRoles={["manager"]}><ManagerComplaint /></ProtectedRouteByRole>}></Route> 
       <Route path = "/manager/complaint/:_id" element = {<ProtectedRouteByRole allowedRoles={["manager"]}><ComplaintDetailsManager /></ProtectedRouteByRole>}></Route>
-      <Route path = "superadmin/admins" element = {<ProtectedRouteByRole allowedRoles={["superadmin"]}><AdminData /></ProtectedRouteByRole>}></Route>
+      <Route path = "/superadmin/admins" element = {<ProtectedRouteByRole allowedRoles={["superadmin"]}><AdminData /></ProtectedRouteByRole>}></Route>
       <Route path = "/superadmin/complaints" element = {<ProtectedRouteByRole allowedRoles={["superadmin"]}><SuperAdminComplaints /></ProtectedRouteByRole>}></Route>
       <Route path = "/superadmin/complaint/:_id" element = {<ProtectedRouteByRole allowedRoles={["superadmin"]}><SuperAdminComplaintDetails /></ProtectedRouteByRole>}></Route>
-
+      <Route path = "/employees-stats" element = {<ProtectedRouteByRole allowedRoles={["superadmin","admin","manager"]}><EmployeeData /></ProtectedRouteByRole>}></Route>
+      <Route path = "/reset-password" element={<ResetPassword/>}></Route>
+      <Route path = "/forgot-password" element={<ForgetPassword/>}></Route>
+      <Route path = "/invite/code-generate" element = {<ProtectedRouteByRole allowedRoles={["superadmin","admin"]}><InviteCodeGenerator /></ProtectedRouteByRole>}></Route>
 
       </Route>
       </Routes>
