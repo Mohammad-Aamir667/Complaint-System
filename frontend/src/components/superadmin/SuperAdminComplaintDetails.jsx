@@ -47,7 +47,7 @@ const SuperAdminComplaintDetails = () => {
 
 
   useEffect(() => {
-    if (superAdminComplaints.length === 0) {
+    if (superAdminComplaints?.length === 0) {
       fetchComplaints()
     }
   }, [superAdminComplaints])
@@ -220,6 +220,32 @@ const SuperAdminComplaintDetails = () => {
                       {complaint?.assignedAdmin?.firstName} {complaint?.assignedAdmin?.lastName}
                     </p>
                     <p className="text-sm text-muted-foreground">Administrator</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+           {complaint?.assignedManager && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  Assigned Manager
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-3">
+                  <Avatar>
+                    <AvatarImage src="/placeholder.svg" />
+                    <AvatarFallback>
+                      {getInitials(complaint?.assignedManager?.firstName, complaint?.assignedAdmin?.lastName)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-medium">
+                      {complaint?.assignedManager?.firstName} {complaint?.assignedManager?.lastName}
+                    </p>
+                    <p className="text-sm text-muted-foreground">Manager</p>
                   </div>
                 </div>
               </CardContent>
