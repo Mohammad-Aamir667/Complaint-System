@@ -115,7 +115,20 @@ const ManagerData = () => {
   const getPerformanceRate = (resolved, total) => {
     return total > 0 ? Math.round((resolved / total) * 100) : 0
   }
-
+   const getStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case "active":
+        return "bg-green-100 text-green-800"
+      case "inactive":
+        return "bg-gray-100 text-gray-800"
+      case "suspended":
+        return "bg-yellow-100 text-yellow-800"
+      case "terminated":
+        return "bg-red-100 text-red-800"
+      default:
+        return "bg-gray-100 text-gray-800"
+    }
+  }
   if (loading && !managers?.length) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -247,7 +260,7 @@ const ManagerData = () => {
             {filteredManagers.map((manager) => {
               const resolutionRate = getPerformanceRate(manager.resolved || 0, manager.totalComplaints || 0)
               const performanceColor = getPerformanceColor(manager.resolved || 0, manager.totalComplaints || 0)
-
+              const statusColor = getStatusColor(manager.status)
               return (
                 <Card key={manager._id} className="shadow-lg hover:shadow-xl transition-shadow">
                   <CardHeader className="text-center pb-4">
@@ -266,6 +279,8 @@ const ManagerData = () => {
                     <CardTitle className="text-lg">
                       {manager.firstName} {manager.lastName}
                     </CardTitle>
+                       <Badge className={statusColor}>{manager.status || "Unknown"}</Badge>
+
                     <CardDescription className="flex items-center justify-center gap-1">
                       <Building className="h-4 w-4" />
                       {manager.department || "General"}
