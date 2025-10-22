@@ -47,6 +47,7 @@ const EmployeeData = () => {
       setError("")
       const res = await axios.get(BASE_URL + "/employees/complaint-stats", { withCredentials: true })
       dispatch(addEmployeeData(res.data))
+      console.log("Fetched employees:", res.data)
     } catch (err) {
       console.error("Error fetching employees:", err)
       setError("Failed to fetch employees data. Please try again.")
@@ -251,13 +252,12 @@ const EmployeeData = () => {
           </CardContent>
         </Card>
 
-        {/* Managers Grid */}
         {filteredEmployees?.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredEmployees.map((employee) => {
               const resolutionRate = getPerformanceRate(employee.resolved || 0, employee.totalComplaints || 0)
               const performanceColor = getPerformanceColor(employee.resolved || 0, employee.totalComplaints || 0)
-              const statusColor = getStatusColor(manager.status)
+              const statusColor = getStatusColor(employee.status)
 
               return (
                 <Card key={employee._id} className="shadow-lg hover:shadow-xl transition-shadow">
