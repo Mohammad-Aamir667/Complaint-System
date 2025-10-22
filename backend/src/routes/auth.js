@@ -103,7 +103,7 @@ authRouter.post("/login", async (req, res) => {
       httpOnly: true,
       secure: true,  // ✅ Required for HTTPS (Render & Vercel)
       sameSite: "none",  // ✅ Allow cross-origin cookies
-      path: "/"
+
     });
 
     res.cookie("token", token);
