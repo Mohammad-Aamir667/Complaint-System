@@ -38,16 +38,16 @@ import { removeUser } from "@/utils/userSlice"
 import { addNotifications } from "@/utils/notificationSlice"
 
 const Sidebar = ({ isOpen, onClose }) => {
-    const dispatch = useDispatch()
+  const dispatch = useDispatch()
   const navigate = useNavigate()
   const handleLogout = async () => {
     try {
       await axios.post(BASE_URL + "/logout", {}, { withCredentials: true })
       dispatch(removeUser())
-       dispatch(removeSuperAdminComplaint())
+      dispatch(removeSuperAdminComplaint())
       navigate("/login")
     } catch (err) {
-     console.error("Logout error:", err)
+      console.error("Logout error:", err)
     }
   }
   const menuItems = [
@@ -63,7 +63,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
   return (
     <>
-      {isOpen && <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={onClose} />}
+      {isOpen && <div className="fixed inset-0 bg-opacity-50 z-40 lg:hidden" onClick={onClose} />}
       <div
         className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
@@ -107,13 +107,13 @@ const Sidebar = ({ isOpen, onClose }) => {
               <Settings className="h-4 w-4" />
               Settings
             </a>
-                 <button
-  onClick={handleLogout}
-  className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
->
-  <LogOut className="h-4 w-4" />
-  Logout
-</button>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </button>
           </nav>
         </div>
       </div>
@@ -137,7 +137,7 @@ export default function SuperAdminDashboardRectified() {
     }
   }
 
- 
+
 
   useEffect(() => {
     if (complaints?.length === 0) fetchComplaints()
@@ -176,9 +176,9 @@ export default function SuperAdminDashboardRectified() {
   const criticalComplaints = complaints?.filter((c) => c.critical === true)
   const escalatedComplaints = complaints?.filter((c) => c.escalated)
   const filteredComplaints = complaints?.filter((c) => {
-      if (filterStatus === "all") return true
-      return c.status === filterStatus
-    })
+    if (filterStatus === "all") return true
+    return c.status === filterStatus
+  })
     .filter((c) => {
       if (!search) return true
       const s = search.toLowerCase()
@@ -202,23 +202,23 @@ export default function SuperAdminDashboardRectified() {
       console.error("Error fetching managers:", err)
     }
   }
-    const notifications = useSelector((store)=>store.notifications)
-  const getNotifications = async ()=>{
-     try{
-            const res = await axios.get(BASE_URL+ "/notifications",{withCredentials:true});
-            dispatch(addNotifications(res.data));
-     }
-     catch(err){
+  const notifications = useSelector((store) => store.notifications)
+  const getNotifications = async () => {
+    try {
+      const res = await axios.get(BASE_URL + "/notifications", { withCredentials: true });
+      dispatch(addNotifications(res.data));
+    }
+    catch (err) {
 
-     }
+    }
   }
-     const handleNotifications = ()=>{
-        navigate("/notifications");
-   }
-  const notificationCount = notifications?.filter((n)=>n.isRead === false).length;
-  useEffect(()=>{
-       getNotifications();
- },[])
+  const handleNotifications = () => {
+    navigate("/notifications");
+  }
+  const notificationCount = notifications?.filter((n) => n.isRead === false).length;
+  useEffect(() => {
+    getNotifications();
+  }, [])
   useEffect(() => {
     fetchManagers()
   }, [])
@@ -261,17 +261,17 @@ export default function SuperAdminDashboardRectified() {
             </div>
 
             <div className="flex items-center gap-3 flex-shrink-0">
-             <Button onClick = {handleNotifications} variant="outline" size="icon" className="relative">
-  <Bell className="h-4 w-4" />
-  {notificationCount > 0 && (
-    <Badge 
-      variant="destructive" 
-      className="absolute -right-2 -top-2 h-5 w-5 justify-center p-0"
-    >
-      {notificationCount}
-    </Badge>
-  )}
-</Button>
+              <Button onClick={handleNotifications} variant="outline" size="icon" className="relative">
+                <Bell className="h-4 w-4" />
+                {notificationCount > 0 && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -right-2 -top-2 h-5 w-5 justify-center p-0"
+                  >
+                    {notificationCount}
+                  </Badge>
+                )}
+              </Button>
               <Avatar onClick={handleProfile} className="cursor-pointer">
                 <AvatarImage src={user.photoUrl || "/placeholder.svg"} />
                 <AvatarFallback>
