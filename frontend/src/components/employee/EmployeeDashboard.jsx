@@ -153,7 +153,6 @@ const EmployeeDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const dispatch = useDispatch();
   const userComplaints = useSelector((store) => store.userComplaints);
-  console.log(userComplaints)
   const user = useSelector((store) => store?.user);
   const navigate = useNavigate();
   const formattedDate = (createdAt) => {

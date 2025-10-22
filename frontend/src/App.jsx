@@ -11,7 +11,6 @@ import Profile from "./components/profile/Profile"
 import ProtectedRouteByRole from "./components/ProtectedRouteByRole"
 import SuperAdminDashboard from "./components/superadmin/SuperAdminDashboard"
 import AdminDashboard from "./components/admin/AdminDashboard"
-import EditProfile from "./components/EditProfile"
 import AssignManager from "./components/admin/AssignManager"
 import ManagerData from "./components/common/ManagerData"
 import AdminComplaint from "./components/admin/AdminComplaint"
@@ -26,6 +25,7 @@ import EmployeeData from "./components/common/EmployeeData"
 import ResetPassword from "./components/ResetPassword"
 import ForgetPassword from "./components/ForgetPasssword"
 import InviteCodeGenerator from "./components/common/InviteCodeGenerator"
+import EditProfile from "./components/profile/EditProfile"
 function App() {
   return (
     <>

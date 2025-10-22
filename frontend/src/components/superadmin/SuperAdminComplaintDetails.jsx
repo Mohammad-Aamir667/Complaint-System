@@ -1,7 +1,7 @@
 "use client"
 
 import { BASE_URL } from "@/utils/constants"
-import { addManagerComplaint,  } from "@/utils/managerComplaintSlice"
+import { addManagerComplaint, } from "@/utils/managerComplaintSlice"
 import axios from "axios"
 import { FileText, User, Calendar, CheckCircle, Clock, AlertCircle, Download } from "lucide-react"
 import { useEffect, useState } from "react"
@@ -25,14 +25,12 @@ const SuperAdminComplaintDetails = () => {
   const superAdminComplaints = useSelector((store) => store.superAdminComplaints)
   const complaint = superAdminComplaints.find((c) => c._id === _id)
 
-  console.log("Complaint Details:", complaint)
 
   const fetchComplaints = async () => {
     setIsLoading(true)
     try {
       const res = await axios.get(BASE_URL + "/superadmin/complaints", { withCredentials: true })
       dispatch(addManagerComplaint(res.data))
-      console.log("Fetched complaints:", res.data)
     } catch (err) {
       console.error("Error fetching complaints:", err)
       toast({
@@ -225,7 +223,7 @@ const SuperAdminComplaintDetails = () => {
               </CardContent>
             </Card>
           )}
-           {complaint?.assignedManager && (
+          {complaint?.assignedManager && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">

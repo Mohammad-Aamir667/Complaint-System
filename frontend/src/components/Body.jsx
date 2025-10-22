@@ -7,15 +7,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useNavigate } from 'react-router-dom'
 
 const Body = () => {
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((store) => store?.user);
 
   const fetchUser = async () => {
- try {   
-      setLoading(true); // Ensure loading state when fetching
-      const res = await axios.get(BASE_URL+"/user/profile", {
+    try {
+      setLoading(true);
+      const res = await axios.get(BASE_URL + "/user/profile", {
         withCredentials: true,
       });
       dispatch(addUser(res.data));
@@ -26,14 +26,13 @@ const Body = () => {
         console.log("Fetch user error", err);
       }
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   }
 
   useEffect(() => {
-    // Always fetch user on mount, regardless of existing user state
     fetchUser();
-  }, []); // Empty dependency array to run only once on mount
+  }, []);
 
   if (loading) {
     return (
@@ -45,7 +44,7 @@ const Body = () => {
       </div>
     );
   }
- 
+
 
   return (
     <div>

@@ -38,6 +38,15 @@ const isManager = (req, res, next) => {
     }
     next();
 };
+const checkRole = (allowedRoles) => (req, res, next) => {
+  if (!req.user) return res.status(401).json({ allowed: false });
+  if (!allowedRoles.includes(req.user.role)) {
+    return res.status(403).json({ allowed: false });
+  }
+  res.locals.allowed = true;
+  next();
+};
+
 module.exports = {
-    userAuth,isAdmin,isManager,isSuperAdmin
+    userAuth,isAdmin,isManager,isSuperAdmin,checkRole
 }

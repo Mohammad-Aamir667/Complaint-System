@@ -47,7 +47,6 @@ const EmployeeData = () => {
       setError("")
       const res = await axios.get(BASE_URL + "/employees/complaint-stats", { withCredentials: true })
       dispatch(addEmployeeData(res.data))
-      console.log("Fetched employees:", res.data)
     } catch (err) {
       console.error("Error fetching employees:", err)
       setError("Failed to fetch employees data. Please try again.")
@@ -55,7 +54,7 @@ const EmployeeData = () => {
       setLoading(false)
     }
   }
-    const handleOpenModal = (employee) => {
+  const handleOpenModal = (employee) => {
     setSelectedEmployee(employee)
     setModalOpen(true)
   }
@@ -79,8 +78,8 @@ const EmployeeData = () => {
   }
 
   useEffect(() => {
-    if(employees?.length === 0)
-    fetchEmployees()
+    if (employees?.length === 0)
+      fetchEmployees()
   }, [])
 
 
@@ -112,7 +111,7 @@ const EmployeeData = () => {
   const getPerformanceRate = (resolved, total) => {
     return total > 0 ? Math.round((resolved / total) * 100) : 0
   }
-   const getStatusColor = (status) => {
+  const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
       case "active":
         return "bg-green-100 text-green-800"
@@ -237,7 +236,7 @@ const EmployeeData = () => {
                   />
                 </div>
               </div>
-             
+
               <Button variant="outline" onClick={fetchEmployees} disabled={loading}>
                 {loading ? (
                   <>
@@ -277,7 +276,7 @@ const EmployeeData = () => {
                     </div>
                     <CardTitle className="text-lg">
                       {employee.firstName} {employee.lastName}
-                   <Badge className={statusColor}>{employee.status || "Unknown"}</Badge>
+                      <Badge className={statusColor}>{employee.status || "Unknown"}</Badge>
 
                     </CardTitle>
                     <CardDescription className="flex items-center justify-center gap-1">
@@ -333,7 +332,7 @@ const EmployeeData = () => {
                         </div>
                       </div>
                     </div>
-                     {user.role !== "manager" && <Button className="w-full mt-4" onClick={() => handleOpenModal(employee)}>
+                    {user.role !== "manager" && <Button className="w-full mt-4" onClick={() => handleOpenModal(employee)}>
                       Action
                     </Button>}
                   </CardContent>
@@ -364,9 +363,9 @@ const EmployeeData = () => {
               )}
             </CardContent>
           </Card>
-          
+
         )}
-         <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <Dialog open={modalOpen} onOpenChange={setModalOpen}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Manage Employee Status</DialogTitle>

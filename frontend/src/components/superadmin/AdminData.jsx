@@ -44,7 +44,6 @@ const AdminData = () => {
       setError("")
       const res = await axios.get(BASE_URL + "/admins/complaint-stats", { withCredentials: true })
       dispatch(addAdminData(res.data))
-      console.log(res.data)
     } catch (err) {
       setError("Failed to fetch managers data. Please try again.")
     } finally {

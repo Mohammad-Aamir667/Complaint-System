@@ -197,7 +197,6 @@ export default function SuperAdminDashboardRectified() {
     try {
       const res = await axios.get(BASE_URL + "/managers/complaint-stats", { withCredentials: true })
       dispatch(addManagerData(res.data))
-      console.log("Fetched managers:", res.data)
     } catch (err) {
       console.error("Error fetching managers:", err)
     }

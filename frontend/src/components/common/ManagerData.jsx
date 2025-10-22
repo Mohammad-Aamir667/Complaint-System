@@ -41,7 +41,6 @@ const ManagerData = () => {
   const [selectedManager, setSelectedManager] = useState(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [actionLoading, setActionLoading] = useState(false)
-  console.log("Managers from Redux:", managers)
 
   const fetchManagers = async () => {
     try {
@@ -49,7 +48,6 @@ const ManagerData = () => {
       setError("")
       const res = await axios.get(BASE_URL + "/managers/complaint-stats", { withCredentials: true })
       dispatch(addManagerData(res.data))
-      console.log("Fetched managers:", res.data)
     } catch (err) {
       console.error("Error fetching managers:", err)
       setError("Failed to fetch managers data. Please try again.")
@@ -57,7 +55,7 @@ const ManagerData = () => {
       setLoading(false)
     }
   }
-    const handleOpenModal = (manager) => {
+  const handleOpenModal = (manager) => {
     setSelectedManager(manager)
     setModalOpen(true)
   }
@@ -81,8 +79,8 @@ const ManagerData = () => {
   }
 
   useEffect(() => {
-    if(managers?.length === 0)
-    fetchManagers()
+    if (managers?.length === 0)
+      fetchManagers()
   }, [])
 
 
@@ -115,7 +113,7 @@ const ManagerData = () => {
   const getPerformanceRate = (resolved, total) => {
     return total > 0 ? Math.round((resolved / total) * 100) : 0
   }
-   const getStatusColor = (status) => {
+  const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
       case "active":
         return "bg-green-100 text-green-800"
@@ -239,7 +237,7 @@ const ManagerData = () => {
                   />
                 </div>
               </div>
-             
+
               <Button variant="outline" onClick={fetchManagers} disabled={loading}>
                 {loading ? (
                   <>
@@ -279,7 +277,7 @@ const ManagerData = () => {
                     <CardTitle className="text-lg">
                       {manager.firstName} {manager.lastName}
                     </CardTitle>
-                       <Badge className={statusColor}>{manager.status || "Unknown"}</Badge>
+                    <Badge className={statusColor}>{manager.status || "Unknown"}</Badge>
 
                     <CardDescription className="flex items-center justify-center gap-1">
                       <Building className="h-4 w-4" />
@@ -365,9 +363,9 @@ const ManagerData = () => {
               )}
             </CardContent>
           </Card>
-          
+
         )}
-         <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <Dialog open={modalOpen} onOpenChange={setModalOpen}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Manage Manager Status</DialogTitle>

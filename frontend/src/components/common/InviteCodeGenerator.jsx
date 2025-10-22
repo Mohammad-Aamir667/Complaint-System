@@ -24,13 +24,12 @@ export default function InviteCodeGenerator() {
   const generateCode = async () => {
     if (!emailId.trim()) {
       toast.error("Please enter an email address")
-      return 
+      return
     }
 
     setIsGenerating(true)
     try {
-        console.log("Generating invite code for:", { role, emailId })
-      const { data } = await axios.post(BASE_URL + "/generate-invite-code", { role,emailId}, { withCredentials: true })
+      const { data } = await axios.post(BASE_URL + "/generate-invite-code", { role, emailId }, { withCredentials: true })
       setGeneratedCode(data.code)
       toast.success("Invite code generated!")
     } catch (err) {

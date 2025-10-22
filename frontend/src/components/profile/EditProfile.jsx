@@ -14,9 +14,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Separator } from "@/components/ui/separator"
 
-import { addUser } from "../utils/userSlice"
-import { BASE_URL } from "../utils/constants"
 import ProfilePictureUpload from "./ProfilePictureUpload"
+import { addUser } from "@/utils/userSlice"
+import { BASE_URL } from "@/utils/constants"
 
 const EditProfile = () => {
   const user = useSelector((state) => state.user)
@@ -32,7 +32,6 @@ const EditProfile = () => {
   const [success, setSuccess] = useState(false)
   const [photoUploadSuccess, setPhotoUploadSuccess] = useState(false)
 
-  // Auto-hide photo upload success after 3 seconds
   useEffect(() => {
     if (photoUploadSuccess) {
       const timer = setTimeout(() => {
@@ -64,7 +63,6 @@ const EditProfile = () => {
       dispatch(addUser(res.data))
       setSuccess(true)
 
-      // Show success message briefly then navigate
       setTimeout(() => {
         navigate(-1)
       }, 1500)
@@ -84,7 +82,7 @@ const EditProfile = () => {
     navigate(-1)
   }
 
-   
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-2xl mx-auto">
@@ -132,16 +130,16 @@ const EditProfile = () => {
             <div>
               <Label className="text-base font-medium">Profile Picture</Label>
               <p className="text-sm text-gray-600 mb-4">Click on the image to upload a new profile picture</p>
-          
-<ProfilePictureUpload 
-  photoUrl={photoUrl} 
-setPhotoUrl={(url) => {
-    setPhotoUrl(url)
-   // Update the Redux store with the new photoUrl
-   dispatch(addUser({ ...user, photoUrl: url }));
- }}
-  setSuccess={setPhotoUploadSuccess}
-/>
+
+              <ProfilePictureUpload
+                photoUrl={photoUrl}
+                setPhotoUrl={(url) => {
+                  setPhotoUrl(url)
+                  // Update the Redux store with the new photoUrl
+                  dispatch(addUser({ ...user, photoUrl: url }));
+                }}
+                setSuccess={setPhotoUploadSuccess}
+              />
             </div>
 
             <Separator />

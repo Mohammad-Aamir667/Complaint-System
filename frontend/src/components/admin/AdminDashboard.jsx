@@ -138,7 +138,6 @@ const AdminDashboard = () => {
     try {
       const res = await axios.get(BASE_URL + "/managers/complaint-stats", { withCredentials: true });
       dispatch(addManagerData(res.data));
-      console.log("Fetched managers:", res.data);
 
     }
     catch (err) {

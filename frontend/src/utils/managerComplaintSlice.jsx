@@ -5,7 +5,6 @@ const managerComplaintSlice = createSlice({
     initialState: [],
     reducers: {
         addManagerComplaint: (state, action) => {
-            console.log("Adding admin complaint:", action.payload);
             return action.payload;
         },
         updateManagerComplaint: (state, action) => {

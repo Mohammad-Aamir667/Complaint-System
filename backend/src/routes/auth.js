@@ -60,6 +60,9 @@ catch(err){
 authRouter.post("/login",async (req,res)=>{
    try{ 
         const {emailId,password} = req.body;
+        if(!emailId || !password){ 
+          return res.status(400).send("emailId and password are required");
+        }
      const user = await User.findOne({emailId});
      if(!user){
       return res.status(401).send("Invalid credentials");
@@ -134,6 +137,9 @@ authRouter.post("/forget-password", async (req, res) => {
     user.forgetPasswordOtp = otp;
     user.forgetPasswordOtpExpires = Date.now() + otpExpireTime;
     await user.save();
+         console.log("EMAIL:", process.env.GMAIL_PASS_KEY);
+console.log("Length:", process.env.GMAIL_PASS_KEY?.length);
+
 
     // Configure transporter
     const transporter = nodemailer.createTransport({
@@ -144,7 +150,6 @@ authRouter.post("/forget-password", async (req, res) => {
       },
     });
 
-    // Email HTML Template
     const htmlTemplate = `
       <div style="font-family: Arial, sans-serif; background-color: #f7f7f7; padding: 30px;">
         <div style="max-width: 500px; margin: auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
@@ -172,7 +177,7 @@ authRouter.post("/forget-password", async (req, res) => {
     // Send Email
     await transporter.sendMail({
       to: emailId,
-      subject: "Password Reset OTP - GrievincePro",
+      subject: "7",
       html: htmlTemplate,
     });
 

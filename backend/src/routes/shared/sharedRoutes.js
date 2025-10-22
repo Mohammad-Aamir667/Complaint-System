@@ -139,6 +139,8 @@ sharedRouter.put("/employees/:employeeId/status", userAuth, async (req, res) => 
           }
         const user = req.user;
         const status = req.body.status;
+                  console.log("status",status)
+
         if(!status || !['active', 'inactive', 'suspended', 'terminated'].includes(status)) return res.status(400).json({ message: "Invalid status" });
         const id = req.params.employeeId;
         const employee = await User.findOne({_id:id,role:"employee"});

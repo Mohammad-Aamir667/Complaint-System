@@ -25,14 +25,12 @@ const ComplaintDetailsManager = () => {
   const managerComplaint = useSelector((store) => store.managerComplaints)
   const complaint = managerComplaint.find((c) => c._id === _id)
 
-  console.log("Complaint Details:", complaint)
 
   const fetchComplaints = async () => {
     setIsLoading(true)
     try {
       const res = await axios.get(BASE_URL + "/manager/complaints", { withCredentials: true })
       dispatch(addManagerComplaint(res.data))
-      console.log("Fetched complaints:", res.data)
     } catch (err) {
       console.error("Error fetching complaints:", err)
       toast({
@@ -46,7 +44,6 @@ const ComplaintDetailsManager = () => {
   }
 
   const handleAccept = async () => {
-    console.log("Accepting complaint with ID:", _id)
     setActionLoading((prev) => ({ ...prev, accept: true }))
     try {
       const res = await axios.put(BASE_URL + `/complaints/${_id}/accept`, {}, { withCredentials: true })

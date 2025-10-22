@@ -103,7 +103,7 @@ const AssignManager = () => {
   const [success, setSuccess] = useState("")
   const [error, setError] = useState("")
   const [escalateModalOpen, setEscalateModalOpen] = useState(false)
-  const [escalationType, setEscalationType] = useState("") 
+  const [escalationType, setEscalationType] = useState("")
   const managers = useSelector((store) => store.managerData)
   const [newManager, setNewManager] = useState("")
   const [escalateReason, setEscalateReason] = useState("")
@@ -280,7 +280,6 @@ const AssignManager = () => {
     try {
       const res = await axios.get(BASE_URL + "/admin/complaints", { withCredentials: true })
       dispatch(addAdminComplaint(res.data))
-      console.log("Fetched complaints:", res.data)
     } catch (err) {
       setError(err.response?.data?.message || "Failed to fetch complaints. Please try again.")
     }
@@ -300,7 +299,6 @@ const AssignManager = () => {
     try {
       const res = await axios.get(BASE_URL + "/managers/complaint-stats", { withCredentials: true })
       dispatch(addManagerData(res.data))
-      console.log("Fetched managers:", res.data)
     } catch (err) {
       console.error("Error fetching managers:", err)
     }

@@ -5,7 +5,6 @@ const superAdminComplaintsSlice = createSlice({
     initialState: [],
     reducers: {
         addSuperAdminComplaint: (state, action) => {
-            console.log("Adding superadmin complaint:", action.payload);
             return action.payload;
         },
         updateSuperAdminComplaint: (state, action) => {
