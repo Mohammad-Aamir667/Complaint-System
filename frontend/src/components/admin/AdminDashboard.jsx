@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { BarChart3,Bell,FileText, Home,MessageSquare,  Search, TrendingUp,User,LogOut,Clock, CheckCircle, AlertCircle,XCircle,Settings, Menu,
+import {
+  BarChart3, Bell, FileText, Home, MessageSquare, Search, TrendingUp, User, LogOut, Clock, CheckCircle, AlertCircle, XCircle, Settings, Menu,
   X,
   Users,
   ArrowUpCircle,
@@ -32,7 +33,7 @@ const menuItems = [
   { title: "Employees", icon: Users, path: "/employees-stats" },
   { title: "Generate Code", icon: BarChart3, path: "/invite/code-generate" },
   { title: "Profile", icon: User, path: "/profile" },
-  
+
 
 
 ];
@@ -45,14 +46,14 @@ const Sidebar = ({ isOpen, onClose }) => {
       await axios.post(BASE_URL + "/logout", {}, { withCredentials: true })
       dispatch(removeUser())
       dispatch(removeAdminComplaint())
-      dispatch(removeManagerData())      
+      dispatch(removeManagerData())
       navigate("/login")
     } catch (err) {
-     console.error("Logout error:", err)
+      console.error("Logout error:", err)
     }
   }
- return <>
-    {isOpen && <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={onClose} />}
+  return <>
+    {isOpen && <div className="fixed inset-0  bg-opacity-50 z-40 lg:hidden" onClick={onClose} ></div>}
     <div
       className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
     >
@@ -74,23 +75,22 @@ const Sidebar = ({ isOpen, onClose }) => {
       <div className="p-4">
         <div className="mb-4">
           <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Navigation</h4>
-    <nav className="space-y-1">
-      {menuItems.map((item) => {
-        const isActive = location.pathname.startsWith(item.path);
-        return (
-          <Link
-            key={item.title}
-            to={item.path}
-            className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-              isActive ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
-            }`}
-          >
-            <item.icon className="h-4 w-4" />
-            {item.title}
-          </Link>
-        );
-      })}
-    </nav>
+          <nav className="space-y-1">
+            {menuItems.map((item) => {
+              const isActive = location.pathname.startsWith(item.path);
+              return (
+                <Link
+                  key={item.title}
+                  to={item.path}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                >
+                  <item.icon className="h-4 w-4" />
+                  {item.title}
+                </Link>
+              );
+            })}
+          </nav>
         </div>
       </div>
 
@@ -104,12 +104,12 @@ const Sidebar = ({ isOpen, onClose }) => {
             Settings
           </a>
           <button
-  onClick={handleLogout}
-  className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
->
-  <LogOut className="h-4 w-4" />
-  Logout
-</button>
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
+          >
+            <LogOut className="h-4 w-4" />
+            Logout
+          </button>
         </nav>
       </div>
     </div>
@@ -121,17 +121,17 @@ const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("")
   const dispatch = useDispatch();
   const user = useSelector((store) => store.user);
-  const mockAdmin = user || mockAdmin; 
+  const mockAdmin = user || mockAdmin;
   const adcomplaints = useSelector((store) => store.adminComplaints);
   const managers = useSelector((store) => store.managerData);
   const navigate = useNavigate()
-  const fetchComplaints = async () =>{
-    try{
-      const res =  await axios.get (BASE_URL + "/admin/complaints", {withCredentials: true});
-        dispatch(addAdminComplaint(res.data));
+  const fetchComplaints = async () => {
+    try {
+      const res = await axios.get(BASE_URL + "/admin/complaints", { withCredentials: true });
+      dispatch(addAdminComplaint(res.data));
     }
-    catch(err){
-            console.error("Error fetching complaints:", err);
+    catch (err) {
+      console.error("Error fetching complaints:", err);
     }
   }
   const fetchManagers = async () => {
@@ -139,41 +139,41 @@ const AdminDashboard = () => {
       const res = await axios.get(BASE_URL + "/managers/complaint-stats", { withCredentials: true });
       dispatch(addManagerData(res.data));
       console.log("Fetched managers:", res.data);
-    
-     }
+
+    }
     catch (err) {
       console.error("Error fetching managers:", err);
     }
   }
-  const notifications = useSelector((store)=>store.notifications)
-  const getNotifications = async ()=>{
-     try{
-            const res = await axios.get(BASE_URL+ "/notifications",{withCredentials:true});
-            dispatch(addNotifications(res.data));
-     }
-     catch(err){
+  const notifications = useSelector((store) => store.notifications)
+  const getNotifications = async () => {
+    try {
+      const res = await axios.get(BASE_URL + "/notifications", { withCredentials: true });
+      dispatch(addNotifications(res.data));
+    }
+    catch (err) {
 
-     }
+    }
   }
-   const handleNotifications = ()=>{
-        navigate("/notifications");
-   }
-  const notificationCount = notifications?.filter((n)=>n.isRead === false).length;
- useEffect(()=>{
+  const handleNotifications = () => {
+    navigate("/notifications");
+  }
+  const notificationCount = notifications?.filter((n) => n.isRead === false).length;
+  useEffect(() => {
     fetchComplaints();
     fetchManagers();
     getNotifications();
- },[])
- const handleProfile = () => {
-  navigate("/profile");
-   }
-   let recentAdminComplaint;
-   if (adcomplaints) {
-     recentAdminComplaint = [...adcomplaints]
-       .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-       .slice(0, 3);
-   }
-    
+  }, [])
+  const handleProfile = () => {
+    navigate("/profile");
+  }
+  let recentAdminComplaint;
+  if (adcomplaints) {
+    recentAdminComplaint = [...adcomplaints]
+      .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+      .slice(0, 3);
+  }
+
 
   const stats = {
     total: adcomplaints?.length,
@@ -182,16 +182,16 @@ const AdminDashboard = () => {
     resolved: adcomplaints?.filter((c) => c.status === "resolved").length,
     escalated: adcomplaints?.filter((c) => c.escalated === true).length,
   }
-  const  getTimeDifference = (updatedAt)=> {
+  const getTimeDifference = (updatedAt) => {
     const now = new Date();
     const updatedTime = new Date(updatedAt);
-    const diffInMs = now - updatedTime; 
-    
+    const diffInMs = now - updatedTime;
+
     const diffInSeconds = Math.floor(diffInMs / 1000);
     const diffInMinutes = Math.floor(diffInSeconds / 60);
     const diffInHours = Math.floor(diffInMinutes / 60);
     const diffInDays = Math.floor(diffInHours / 24);
-  
+
     if (diffInSeconds < 60) {
       return `${diffInSeconds} seconds ago`;
     } else if (diffInMinutes < 60) {
@@ -202,10 +202,10 @@ const AdminDashboard = () => {
       return `${diffInDays} days ago`;
     }
   }
-  
+
 
   const resolutionRate = Math.round((stats.resolved / stats.total) * 100)
-    if(user.status !== "active"){
+  if (user.status !== "active") {
     navigate("/login")
   }
   return (
@@ -233,19 +233,19 @@ const AdminDashboard = () => {
             </div>
             <div className="flex items-center gap-3">
 
-<Button onClick = {handleNotifications} variant="outline" size="icon" className="relative">
-  <Bell className="h-4 w-4" />
-  {notificationCount > 0 && (
-    <Badge 
-      variant="destructive" 
-      className="absolute -right-2 -top-2 h-5 w-5 justify-center p-0"
-    >
-      {notificationCount}
-    </Badge>
-  )}
-</Button>
-              <Avatar onClick = {handleProfile} size="sm">
-                <AvatarImage  src={mockAdmin.photoUrl || "/placeholder.svg"} />
+              <Button onClick={handleNotifications} variant="outline" size="icon" className="relative">
+                <Bell className="h-4 w-4" />
+                {notificationCount > 0 && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -right-2 -top-2 h-5 w-5 justify-center p-0"
+                  >
+                    {notificationCount}
+                  </Badge>
+                )}
+              </Button>
+              <Avatar onClick={handleProfile} size="sm">
+                <AvatarImage src={mockAdmin.photoUrl || "/placeholder.svg"} />
                 <AvatarFallback>
                   {mockAdmin.firstName[0]}
                   {mockAdmin.lastName[0]}
@@ -376,22 +376,22 @@ const AdminDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                           {recentAdminComplaint?.map((complaint)=>(   
-                               <div key = {recentAdminComplaint?._id}>
-                            <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
-                    <div>
-                      <p className="text-sm font-medium">{complaint?.complaintId} assigned to {complaint?.assignedManager?.firstName} {complaint?.assignedManager?.lastName}</p>
-                      <p className="text-xs text-gray-500">{getTimeDifference(complaint?.updatedAt)}</p>
+                  {recentAdminComplaint?.map((complaint) => (
+                    <div key={complaint?.complaintId}>
+                      <div className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
+                        <div>
+                          <p className="text-sm font-medium">{complaint?.complaintId} assigned to {complaint?.assignedManager?.firstName} {complaint?.assignedManager?.lastName}</p>
+                          <p className="text-xs text-gray-500">{getTimeDifference(complaint?.updatedAt)}</p>
+                        </div>
+                      </div>
                     </div>
-                  </div>  
-                  </div>  
-                ))}     
-              </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           </div>
-                   <AdminComplaint/>
+          <AdminComplaint />
         </main>
       </div>
     </div>
