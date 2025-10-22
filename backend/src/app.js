@@ -9,7 +9,7 @@ const cors = require("cors");
 app.use(express.json());
 app.use(cookieParser());
 const allowedOrigins = [
-"https://complaint-system-sable.vercel.app"];
+  "https://complaint-system-sable.vercel.app", "http://localhost:5174"];
 app.use(cors({
   origin: allowedOrigins,
   credentials: true,
@@ -26,21 +26,21 @@ const profileRouter = require("./routes/profile");
 const sharedRouter = require("./routes/shared/sharedRoutes");
 const notificationRouter = require("./routes/notifications");
 const superAdminComplaintRouter = require("./routes/complaints/superAdmin");
-app.use("/",authRouter);
-app.use("/",userComplaintRouter);
-app.use("/",adminComplaintRouter);
-app.use("/",managerComplaintRouter);
-app.use("/",profileRouter)
-app.use("/",sharedRouter);
-app.use("/",notificationRouter);
-app.use("/",superAdminComplaintRouter);
-connectDB().then(()=>{
-    console.log("connected successfully")
-    server.listen(PORT,"0.0.0.0",()=>{
-        console.log("server is successfully connected");
-        console.log(PORT);
-    })
-  }).catch((err)=>{
-    console.log(err);
-    console.log("could not connect")
-  });
+app.use("/", authRouter);
+app.use("/", userComplaintRouter);
+app.use("/", adminComplaintRouter);
+app.use("/", managerComplaintRouter);
+app.use("/", profileRouter)
+app.use("/", sharedRouter);
+app.use("/", notificationRouter);
+app.use("/", superAdminComplaintRouter);
+connectDB().then(() => {
+  console.log("connected successfully")
+  server.listen(PORT, "0.0.0.0", () => {
+    console.log("server is successfully connected");
+    console.log(PORT);
+  })
+}).catch((err) => {
+  console.log(err);
+  console.log("could not connect")
+});
