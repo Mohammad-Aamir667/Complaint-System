@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { BarChart3,Bell, FileText, Home, MessageSquare, Plus, Search, TrendingUp, User, LogOut, Clock,CheckCircle,  AlertCircle,XCircle,Settings,Menu,X,} from "lucide-react"
+import { BarChart3, Bell, FileText, Home, MessageSquare, Plus, Search, TrendingUp, User, LogOut, Clock, CheckCircle, AlertCircle, XCircle, Settings, Menu, X, } from "lucide-react"
 import { useDispatch, useSelector } from "react-redux"
 import axios from "axios"
 import { BASE_URL } from "../../utils/constants"
@@ -18,11 +18,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { removeUser } from "@/utils/userSlice"
 
 const menuItems = [
-  { title: "Dashboard", navigate:"/employee/dashboard", icon: Home, isActive: true },
-  { title: "Profile",navigate:"/profile", icon: User },
-  { title: "Lodge Complaint",navigate:"/employee/lodge-complaint", icon: Plus },
-  { title: "Status of Complaints",navigate:"#", icon: FileText },
-  { title: "Statistics", navigate:"#",icon: BarChart3 },
+  { title: "Dashboard", navigate: "/employee/dashboard", icon: Home, isActive: true },
+  { title: "Profile", navigate: "/profile", icon: User },
+  { title: "Lodge Complaint", navigate: "/employee/lodge-complaint", icon: Plus },
+  { title: "Status of Complaints", navigate: "#", icon: FileText },
+  { title: "Statistics", navigate: "#", icon: BarChart3 },
 ]
 
 const Sidebar = ({ isOpen, onClose }) => {
@@ -35,12 +35,12 @@ const Sidebar = ({ isOpen, onClose }) => {
       dispatch(removeUserComplaint())
       navigate("/login")
     } catch (err) {
-     console.error("Logout error:", err)
+      console.error("Logout error:", err)
     }
   }
-    return( <>
+  return (<>
     {/* Mobile overlay */}
-    {isOpen && <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={onClose} />}
+    {isOpen && <div className="fixed inset-0  bg-opacity-50 z-40 lg:hidden" onClick={onClose} />}
 
     {/* Sidebar */}
     <div
@@ -68,13 +68,12 @@ const Sidebar = ({ isOpen, onClose }) => {
           <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Navigation</h4>
           <nav className="space-y-1">
             {menuItems.map((item) => (
-            
-           <Link
+
+              <Link
                 key={item.title}
                 to={`${item?.navigate}`}
-                className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  item.isActive ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
-                }`}
+                className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${item.isActive ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
+                  }`}
               >
                 <item.icon className="h-4 w-4" />
                 {item.title}
@@ -95,18 +94,18 @@ const Sidebar = ({ isOpen, onClose }) => {
             Settings
           </a>
           <button
-  onClick={handleLogout}
-  className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
->
-  <LogOut className="h-4 w-4" />
-  Logout
-</button>
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
+          >
+            <LogOut className="h-4 w-4" />
+            Logout
+          </button>
 
         </nav>
       </div>
     </div>
   </>
-    )
+  )
 }
 
 const getStatusIcon = (status) => {
@@ -155,41 +154,41 @@ const EmployeeDashboard = () => {
   const dispatch = useDispatch();
   const userComplaints = useSelector((store) => store.userComplaints);
   console.log(userComplaints)
-   const user = useSelector((store) => store?.user);
-      const navigate = useNavigate();
-   const formattedDate = (createdAt)=>{
+  const user = useSelector((store) => store?.user);
+  const navigate = useNavigate();
+  const formattedDate = (createdAt) => {
     const date = new Date(createdAt);
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
 
-   return date.toLocaleDateString('en-US', options) || ""; // Fallback if date is invalid
+    return date.toLocaleDateString('en-US', options) || ""; // Fallback if date is invalid
 
-   }
-  const getUserComplaints = async()=>{
-             try{
-             const res = await axios.get(BASE_URL+"/user/complaints",{withCredentials:true});
-               dispatch(addUserComplaint(res.data))
-             }
-             catch(err){
-                console.error("Error fetching complaints:", err);
-             }
+  }
+  const getUserComplaints = async () => {
+    try {
+      const res = await axios.get(BASE_URL + "/user/complaints", { withCredentials: true });
+      dispatch(addUserComplaint(res.data))
+    }
+    catch (err) {
+      console.error("Error fetching complaints:", err);
+    }
   }
   const handleLodgeComplaint = () => {
     navigate("/employee/lodge-complaint");
-     }
-     const handleProfile = () => {
+  }
+  const handleProfile = () => {
     navigate("/profile");
-     }
-     
-   
-  useEffect(()=>{
-    if(userComplaints?.length > 0) return; // Avoid fetching if already loaded
+  }
+
+
+  useEffect(() => {
+    if (userComplaints?.length > 0) return; // Avoid fetching if already loaded
     getUserComplaints();
-  },[])
+  }, [])
   const totalComplaints = userComplaints?.length;
   const resolvedComplaints = userComplaints?.filter((c) => c.status === "resolved")?.length
   const pendingComplaints = userComplaints?.filter((c) => c.status === "pending")?.length
   const resolutionRate = Math.round((resolvedComplaints / totalComplaints) * 100)
-  if(user.status !== "active"){
+  if (user.status !== "active") {
     navigate("/login")
   }
   return user?.status === "active" && (
@@ -215,10 +214,10 @@ const EmployeeDashboard = () => {
               <Button variant="outline" size="icon">
                 <Bell className="h-4 w-4" />
               </Button>
-              <Avatar onClick = {handleProfile} className="h-8 w-8">
-              <AvatarImage  src={user?.photoUrl || "/placeholder.svg"}
-                alt={`${user?.firstName} ${user?.lastName}`} />
-                 <AvatarFallback>
+              <Avatar onClick={handleProfile} className="h-8 w-8">
+                <AvatarImage src={user?.photoUrl || "/placeholder.svg"}
+                  alt={`${user?.firstName} ${user?.lastName}`} />
+                <AvatarFallback>
                   {user?.firstName?.[0]}
                   {user?.lastName?.[0]}
                 </AvatarFallback>
@@ -237,7 +236,7 @@ const EmployeeDashboard = () => {
               </h1>
               <p className="text-gray-600 mt-1">Here's an overview of your complaint management dashboard</p>
             </div>
-            <Button onClick = {handleLodgeComplaint }>
+            <Button onClick={handleLodgeComplaint}>
               <Plus className="mr-2 h-4 w-4" />
               Lodge New Complaint
             </Button>
@@ -308,14 +307,14 @@ const EmployeeDashboard = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex items-center space-x-4">
-                  <Avatar className="h-8 w-8">
-                <AvatarImage  src={user?.photoUrl || "/placeholder.svg"}
-                alt={`${user?.firstName} ${user?.lastName}`} />
-                <AvatarFallback>
-                  {user?.firstName?.[0]}
-                  {user?.lastName?.[0]}
-                </AvatarFallback>
-              </Avatar>
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user?.photoUrl || "/placeholder.svg"}
+                        alt={`${user?.firstName} ${user?.lastName}`} />
+                      <AvatarFallback>
+                        {user?.firstName?.[0]}
+                        {user?.lastName?.[0]}
+                      </AvatarFallback>
+                    </Avatar>
                     <div className="space-y-1">
                       <h3 className="font-semibold text-lg">
                         {user?.firstName} {user?.lastName}
@@ -329,18 +328,18 @@ const EmployeeDashboard = () => {
                       <span className="text-gray-600">Email:</span>
                       <span className="font-medium">{user?.emailId}</span>
                     </div>
-                   {user?.department &&  (<div className="flex justify-between">
-                    <span className="text-gray-600">Department:</span>
-              <span className="font-medium">{user?.department}</span>  </div>)}
+                    {user?.department && (<div className="flex justify-between">
+                      <span className="text-gray-600">Department:</span>
+                      <span className="font-medium">{user?.department}</span>  </div>)}
                     <div className="flex justify-between">
                       <span className="text-gray-600">Joining Date:</span>
                       <span className="font-medium">{user?.joiningDate}</span>
-                      </div>
-                      <div className="flex justify-between">
+                    </div>
+                    <div className="flex justify-between">
                       <span className="text-gray-600">Gender:</span>
                       <span className="font-medium">{user?.gender?.charAt(0).toUpperCase() + user?.gender?.slice(1).toLowerCase()}</span>
                     </div>
-                  
+
                   </div>
                 </div>
               </CardContent>
