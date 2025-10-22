@@ -19,7 +19,7 @@ import {
   Menu,
   X,
   Users,
- 
+
 } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -36,11 +36,11 @@ import { addManagerComplaint } from "@/utils/managerComplaintSlice"
 import ManagerComplaint from "./ManagerComplaint"
 
 const menuItems = [
-  { title: "Dashboard", icon: Home, isActive: true ,path: "/manager/dashboard"},
-  { title: "Profile", icon: User ,path: "/profile"},
-  { title: "My Complaints", icon: FileText , path: "/manager/complaints"}, 
+  { title: "Dashboard", icon: Home, isActive: true, path: "/manager/dashboard" },
+  { title: "Profile", icon: User, path: "/profile" },
+  { title: "My Complaints", icon: FileText, path: "/manager/complaints" },
   { title: "Employees", icon: Users, path: "/employees-stats" },
-  { title: "Analytics", icon: BarChart3 , path: "/analytics"},
+  { title: "Analytics", icon: BarChart3, path: "/analytics" },
 ]
 
 const Sidebar = ({ isOpen, onClose }) => {
@@ -50,14 +50,14 @@ const Sidebar = ({ isOpen, onClose }) => {
     try {
       await axios.post(BASE_URL + "/logout", {}, { withCredentials: true })
       dispatch(removeUser())
-       
+
       navigate("/login")
     } catch (err) {
-     console.error("Logout error:", err)
+      console.error("Logout error:", err)
     }
   }
- return <>
-    {isOpen && <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={onClose} />}
+  return <>
+    {isOpen && <div className="fixed inset-0  bg-opacity-50 z-40 lg:hidden" onClick={onClose} />}
     <div
       className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
     >
@@ -84,9 +84,8 @@ const Sidebar = ({ isOpen, onClose }) => {
               <Link
                 key={item.title}
                 to={item.path}
-                className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  item.isActive ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
-                }`}
+                className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${item.isActive ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
+                  }`}
               >
                 <item.icon className="h-4 w-4" />
                 {item.title}
@@ -106,12 +105,12 @@ const Sidebar = ({ isOpen, onClose }) => {
             Settings
           </a>
           <button
-  onClick={handleLogout}
-  className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
->
-  <LogOut className="h-4 w-4" />
-  Logout
-</button>
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
+          >
+            <LogOut className="h-4 w-4" />
+            Logout
+          </button>
         </nav>
       </div>
     </div>
@@ -130,8 +129,8 @@ const ManagerDashboard = () => {
   const complaints = useSelector((store) => store.managerComplaints);
   const dispatch = useDispatch();
   const navigate = useNavigate();
- 
-  
+
+
 
   const stats = {
     total: complaints.length,
@@ -141,25 +140,25 @@ const ManagerDashboard = () => {
     resolved: complaints.filter((c) => c.status === "Resolved").length,
     overdue: complaints.filter((c) => new Date(c.dueDate) < new Date() && c.status !== "Resolved").length,
   }
-  const fetchComplaints = async () =>{
-    try{
-      const res =  await axios.get (BASE_URL + "/manager/complaints", {withCredentials: true});
-        dispatch(addManagerComplaint(res.data));
+  const fetchComplaints = async () => {
+    try {
+      const res = await axios.get(BASE_URL + "/manager/complaints", { withCredentials: true });
+      dispatch(addManagerComplaint(res.data));
     }
-    catch(err){
-            console.error("Error fetching complaints:", err);
+    catch (err) {
+      console.error("Error fetching complaints:", err);
     }
   }
   const handleProfile = () => {
     navigate("/profile");
-     }
-  useEffect(()=>{
-      fetchComplaints();
-    
-   },[])
+  }
+  useEffect(() => {
+    fetchComplaints();
+
+  }, [])
   const resolutionRate = Math.round((stats.resolved / stats.total) * 100)
   const workload = stats.total - stats.resolved
-   if(user.status !== "active"){
+  if (user.status !== "active") {
     navigate("/login")
   }
   return (
@@ -189,7 +188,7 @@ const ManagerDashboard = () => {
               <Button variant="outline" size="icon">
                 <Bell className="h-4 w-4" />
               </Button>
-              <Avatar onClick = {handleProfile} size="sm">
+              <Avatar onClick={handleProfile} size="sm">
                 <AvatarImage src={user?.photoUrl || "/placeholder.svg"} />
                 <AvatarFallback>
                   {user?.firstName[0]}
@@ -228,7 +227,7 @@ const ManagerDashboard = () => {
               </CardContent>
             </Card>
 
-          
+
 
             <Card>
               <CardContent className="p-4">
@@ -266,7 +265,7 @@ const ManagerDashboard = () => {
               </CardContent>
             </Card>
 
-         
+
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
@@ -332,8 +331,8 @@ const ManagerDashboard = () => {
             </Card>
           </div>
 
-          
-          <ManagerComplaint/>
+
+          <ManagerComplaint />
         </main>
       </div>
     </div>
