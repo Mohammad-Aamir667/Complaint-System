@@ -105,8 +105,6 @@ authRouter.post("/login", async (req, res) => {
       sameSite: "none",  // ✅ Allow cross-origin cookies
 
     });
-
-    res.cookie("token", token);
     res.json(userData);
 
 
